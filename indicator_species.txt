@@ -1,0 +1,188 @@
+######Data analyses and plotting scripts for Romero-Olivares et al. VOC manuscript 
+######"Impacts to soil and litter volatile organic compounds in response to chronic heating and nitrogen addition"
+
+
+
+
+######Indicator species analysis
+library(indicspecies)
+pc = read.csv("for_indicator_species_NO_OTHER.csv", header= TRUE)
+View(pc)
+
+abund = pc[,3:ncol(pc)]
+View(abund)
+treatment = pc$treatment
+
+inv = multipatt(abund, treatment, func = "r.g", control = how(nperm=9999))
+summary(inv)
+
+ Multilevel pattern analysis
+ ---------------------------
+
+ Association function: r.g
+ Significance level (alpha): 0.05
+
+ Total number of species: 172
+ Selected number of species: 2 
+ Number of species associated to 1 group: 1 
+ Number of species associated to 2 groups: 1 
+ Number of species associated to 3 groups: 0 
+
+ List of species associated to each combination: 
+
+ Group hxn  #sps.  1 
+          stat p.value   
+a.pinene 0.435  0.0034 **
+
+ Group hxn+nitrogen  #sps.  1 
+           stat p.value  
+b.thujone 0.369  0.0268 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+######plot for indicator VOC a-pinene and B-thujone 
+
+library(ggplot2)
+library(RColorBrewer)
+
+
+Input = ("
+year	month	treatment	pinene	thujone
+one	Aug	C	0.03	0
+one	Aug	C	0	0
+one	Aug	C	0.04	0
+one	June	C	0	0
+one	June	C	0	0
+one	June	C	0	0
+one	Oct	C	0	0
+one	Oct	C	0.01	0
+one	Oct	C	0.01	0.01
+two	Oct	C	0	0
+two	Oct	C	0.07	0
+two	Oct	C	0	0
+two	Sept	C	0	0
+two	Sept	C	0.08	0
+two	Sept	C	0.01	0
+one	Aug	H	0.01	0
+one	Aug	H	0.03	0
+one	Aug	H	0.03	0.01
+one	June	H	0	0
+one	June	H	0	0
+one	June	H	0	0
+one	Oct	H	0.02	0.01
+one	Oct	H	0.03	0.01
+one	Oct	H	0.12	0.01
+two	Oct	H	0	0
+two	Oct	H	0	0
+two	Oct	H	0	0
+two	Sept	H	0	0
+two	Sept	H	0.02	0
+two	Sept	H	0	0
+one	Aug	HxN	0.06	0.01
+one	Aug	HxN	0.11	0.03
+one	Aug	HxN	0.04	0.01
+one	June	HxN	0	0
+one	June	HxN	0.17	0
+one	June	HxN	0	0
+one	Oct	HxN	0.4	0.03
+one	Oct	HxN	0.78	0.01
+two	Oct	HxN	0	0
+two	Oct	HxN	0	0.04
+two	Oct	HxN	0	0
+two	Sept	HxN	0.74	0
+two	Sept	HxN	0	0
+two	Sept	HxN	0.13	0
+one	Aug	N	0.01	0.01
+one	Aug	N	0.06	0.01
+one	Aug	N	0	0.01
+one	June	N	0	0
+one	June	N	0	0
+one	Oct	N	0.04	0.01
+one	Oct	N	0.04	0.01
+one	Oct	N	0.04	0.01
+two	Oct	N	0	0
+two	Oct	N	0.02	0.03
+two	Oct	N	0	0.01
+two	Sept	N	0.04	0
+two	Sept	N	0.13	0
+two	Sept	N	0.14	0
+         ")
+
+Data = read.table(textConnection(Input),header=TRUE)
+
+cbbPalette <- c("#009E73", "#e79f00", "#0072B2", "#D55E00", "#CC79A7", "#9999CC")
+
+### use this to force order of x-axes, otherwise ggplot will order them alphabetically
+
+Data$treatment <- factor(Data$treatment, levels =c("C", "H", "N", "HxN"))
+Data$month <- factor(Data$month, levels = c("June", "August", "September", "October"))
+
+ALL_plot <- ggplot(Data, aes (treatment, pinene)) +
+  geom_boxplot(outlier.size = 0.1, outlier.color = NA) +
+  geom_jitter(aes(treatment,pinene, color = treatment),
+              position=position_jitter(width=0.1,height=0),
+              alpha=0.5,
+              size=3) +
+  scale_color_manual(values = cbbPalette) + 
+  xlab("") +
+  ylab("Total VOCs (ug/m2/h-1)") +
+  theme(axis.title.x = element_text(face='bold',size=16,hjust=0.5),
+        axis.title.y = element_text(face='bold',size=16,vjust=1),
+        axis.text.x = element_text(face='bold',size=14,color='black'),
+        axis.text.y = element_text(face='bold',size=14,color='black'))
+
+
+ALL_plot
+
+
+ALL_plot_final <- ALL_plot + 
+  theme(panel.grid = element_blank(), 
+        panel.background = element_rect(fill = "white"), 
+        panel.border = element_rect(color = "black", fill = NA, size = 0.5), 
+        axis.title.x = element_text(color="black", vjust=1),
+        axis.title.y = element_text(color="black" , vjust=1)) +
+  labs(x = "", y = "Total VOCs (ug/m2/h-1)")
+
+ALL_plot_final
+
+jpeg("a-pinene.jpeg",height=6,width=4,units = 'in', res = 600)#height in inches, resolution 600 dpi
+plot(ALL_plot_final)
+dev.off()
+
+
+Data$treatment <- factor(Data$treatment, levels =c("C", "H", "N", "HxN"))
+Data$month <- factor(Data$month, levels = c("June", "August", "September", "October"))
+
+ALL_plot <- ggplot(Data, aes (treatment, thujone)) +
+  geom_boxplot(outlier.size = 0.1, outlier.color = NA) +
+  geom_jitter(aes(treatment,thujone, color = treatment),
+           position=position_jitter(width=0.1,height=0),
+           alpha=0.5,
+           size=3) +
+  scale_color_manual(values = cbbPalette) + 
+  xlab("") +
+  ylab("Total VOCs (ug/m2/h-1)") +
+  theme(axis.title.x = element_text(face='bold',size=16,hjust=0.5),
+        axis.title.y = element_text(face='bold',size=16,vjust=1),
+        axis.text.x = element_text(face='bold',size=14,color='black'),
+        axis.text.y = element_text(face='bold',size=14,color='black'))
+
+
+ALL_plot
+
+
+ALL_plot_final <- ALL_plot + 
+  theme(panel.grid = element_blank(), 
+        panel.background = element_rect(fill = "white"), 
+        panel.border = element_rect(color = "black", fill = NA, size = 0.5), 
+        axis.title.x = element_text(color="black", vjust=1),
+        axis.title.y = element_text(color="black" , vjust=1)) +
+  labs(x = "", y = "Total VOCs (ug/m2/h-1)")
+
+ALL_plot_final
+
+jpeg("B-thujone.jpeg",height=6,width=4,units = 'in', res = 600)#height in inches, resolution 600 dpi
+plot(ALL_plot_final)
+dev.off()
+
+
