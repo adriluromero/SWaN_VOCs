@@ -1,0 +1,1861 @@
+######Data analyses and plotting scripts for Romero-Olivares et al. VOC manuscript 
+######"Impacts to soil and litter volatile organic compounds in response to chronic heating and nitrogen addition"
+
+
+
+
+######Repeated measures ANOVA environmental variables 
+
+library(multcompView)
+library(multcomp)
+library(lsmeans)
+library(emmeans)
+library(psych)
+
+######CP_crude_protein_nitrogen
+
+Data = read.csv("VOCs_litter_chemistry.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$rank_crude ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> ##########CP_crude_protein_nitrogen
+> 
+> Data = read.csv("VOCs_litter_chemistry.csv", header=TRUE)
+> 
+> headTail(Data)
+                 ID plot sampling treatment Total_VOCs CP_crude_protein_nitrogen rank_crude ADF_Cellulose_Lignin_Ash
+1    3_hxn_Aug_2018    3      two       HxN     138.69                       4.6          1                       66
+2   3_hxn_Sept_2019    3     four       HxN     102.09                       5.1          2                     61.7
+3     11_n_Oct_2019   11     five         N      55.36                       6.1          4                     28.5
+4      1_c_Oct_2018    1    three         C      36.85                      10.4         27                       48
+...            <NA>  ...     <NA>      <NA>        ...                       ...        ...                      ...
+55    8_h_June_2018    8      one         H     241.61                         9         17                     42.2
+56    5_h_Sept_2019    5     four         H      20.35                      10.6         28                     47.5
+57     9_n_Aug_2018    9      two         N      70.45                      11.2         33                     37.8
+58    19_c_Oct_2019   19     five         C      21.18                       8.1         11                     32.8
+    rank_ADF_cellu NDF_Hemicellulose_Cellulose_Lignin_Ash rank_ADF_hemi ADF_NDF rank_ADF_NDF cellulose rank_cellulose
+1               51                                   68.7            44    96.1           51     53.75             55
+2               50                                   67.3            43    91.7           50     46.93             54
+3                1                                   37.8             1    75.5           12      4.75             19
+4               47                                   55.7            41    86.2           42     22.89             52
+...            ...                                    ...           ...     ...          ...       ...            ...
+55              27                                   51.9            25    81.3           27      4.54             18
+56              46                                     52            26    91.2           49      9.83             43
+57              15                                   48.2            15    78.3           18      0.09              3
+58               8                                   45.3             4    72.4            7         0              1
+    hemicellulose rank_hemicellulose Lignin rank_lignin
+1             2.7                  1  12.25           1
+2             5.6                  4  14.77           2
+3             9.3                 23  23.75           3
+4             7.7                 16  25.11           4
+...           ...                ...    ...         ...
+55            9.7                 26  37.66          52
+56            4.5                  2  37.67          53
+57           10.4                 30  37.71          54
+58           12.5                 42  38.54          55
+> str(Data)
+'data.frame':	58 obs. of  19 variables:
+ $ ID                                    : chr  "3_hxn_Aug_2018" "3_hxn_Sept_2019" "11_n_Oct_2019" "1_c_Oct_2018" ...
+ $ plot                                  : int  3 3 11 1 7 3 1 3 5 1 ...
+ $ sampling                              : chr  "two" "four" "five" "three" ...
+ $ treatment                             : chr  "HxN" "HxN" "N" "C" ...
+ $ Total_VOCs                            : num  138.7 102.1 55.4 36.9 32.9 ...
+ $ CP_crude_protein_nitrogen             : num  4.6 5.1 6.1 10.4 6.7 5.6 8.2 11.1 6.7 8.9 ...
+ $ rank_crude                            : int  1 2 4 27 5 3 12 32 5 16 ...
+ $ ADF_Cellulose_Lignin_Ash              : num  66 61.7 28.5 48 31.9 52.5 43.8 32.6 32.3 34.2 ...
+ $ rank_ADF_cellu                        : int  51 50 1 47 3 49 37 7 5 10 ...
+ $ NDF_Hemicellulose_Cellulose_Lignin_Ash: num  68.7 67.3 37.8 55.7 45.9 58.4 57.7 45.5 44.6 46.2 ...
+ $ rank_ADF_hemi                         : int  44 43 1 41 8 42 41 6 3 10 ...
+ $ ADF_NDF                               : num  96.1 91.7 75.5 86.2 69.4 89.9 75.9 71.6 72.4 74.1 ...
+ $ rank_ADF_NDF                          : int  51 50 12 42 2 47 13 6 7 9 ...
+ $ cellulose                             : num  53.75 46.93 4.75 22.89 6.12 ...
+ $ rank_cellulose                        : int  55 54 19 52 24 53 51 15 9 16 ...
+ $ hemicellulose                         : num  2.7 5.6 9.3 7.7 14 5.9 13.9 12.9 12.3 12 ...
+ $ rank_hemicellulose                    : int  1 4 23 16 48 5 47 43 41 39 ...
+ $ Lignin                                : num  12.2 14.8 23.8 25.1 25.8 ...
+ $ rank_lignin                           : int  1 2 3 4 5 6 7 8 9 10 ...
+> summary(Data)   
+      ID                 plot          sampling          treatment           Total_VOCs     CP_crude_protein_nitrogen
+ Length:58          Min.   : 1.000   Length:58          Length:58          Min.   :  3.12   Min.   : 4.600           
+ Class :character   1st Qu.: 3.250   Class :character   Class :character   1st Qu.: 37.07   1st Qu.: 8.125           
+ Mode  :character   Median : 6.500   Mode  :character   Mode  :character   Median : 85.44   Median : 9.550           
+                    Mean   : 7.241                                         Mean   : 95.42   Mean   : 9.434           
+                    3rd Qu.: 9.000                                         3rd Qu.:134.48   3rd Qu.:11.075           
+                    Max.   :19.000                                         Max.   :332.78   Max.   :12.500           
+   rank_crude    ADF_Cellulose_Lignin_Ash rank_ADF_cellu  NDF_Hemicellulose_Cellulose_Lignin_Ash rank_ADF_hemi  
+ Min.   : 1.00   Min.   :28.50            Min.   : 1.00   Min.   :37.80                          Min.   : 1.00  
+ 1st Qu.:11.25   1st Qu.:37.73            1st Qu.:14.25   1st Qu.:47.65                          1st Qu.:13.25  
+ Median :20.50   Median :42.00            Median :26.00   Median :51.10                          Median :23.00  
+ Mean   :21.02   Mean   :41.22            Mean   :25.79   Mean   :51.04                          Mean   :22.90  
+ 3rd Qu.:31.75   3rd Qu.:43.80            3rd Qu.:37.00   3rd Qu.:53.48                          3rd Qu.:32.75  
+ Max.   :41.00   Max.   :66.00            Max.   :51.00   Max.   :68.70                          Max.   :44.00  
+    ADF_NDF       rank_ADF_NDF     cellulose      rank_cellulose  hemicellulose    rank_hemicellulose     Lignin     
+ Min.   :69.30   Min.   : 1.00   Min.   : 0.000   Min.   : 1.00   Min.   : 2.700   Min.   : 1.00      Min.   :12.25  
+ 1st Qu.:75.90   1st Qu.:13.00   1st Qu.: 3.252   1st Qu.:13.25   1st Qu.: 7.525   1st Qu.:14.25      1st Qu.:31.36  
+ Median :80.75   Median :24.50   Median : 6.620   Median :26.50   Median :10.000   Median :27.50      Median :34.78  
+ Mean   :80.39   Mean   :24.90   Mean   : 8.229   Mean   :26.91   Mean   : 9.822   Mean   :26.66      Mean   :33.17  
+ 3rd Qu.:84.83   3rd Qu.:36.75   3rd Qu.: 8.797   3rd Qu.:40.75   3rd Qu.:11.925   3rd Qu.:38.75      3rd Qu.:36.56  
+ Max.   :96.10   Max.   :51.00   Max.   :53.750   Max.   :55.00   Max.   :15.200   Max.   :50.00      Max.   :38.54  
+  rank_lignin   
+ Min.   : 1.00  
+ 1st Qu.:15.25  
+ Median :28.50  
+ Mean   :28.14  
+ 3rd Qu.:41.75  
+ Max.   :55.00  
+> 
+> Data.aov <- aov(Data$rank_crude ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$rank_crude ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 21.01724
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        540.7099
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        1098.702  2182.053
+Deg. of Freedom              2         2
+
+Residual standard error: 33.03069
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         126.062  3393.456
+Deg. of Freedom              3        49
+
+Residual standard error: 8.321911
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  540.7   540.7
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2   1099   549.4   0.504  0.665
+Residuals       2   2182  1091.0               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  3    126   42.02   0.607  0.614
+Residuals      49   3393   69.25               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           23.3 NaN NaN       NaN       NaN
+ H           18.9 NaN NaN       NaN       NaN
+ HxN         20.2 NaN NaN       NaN       NaN
+ N           21.7 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H        4.46 3.38 49  1.320  0.5549 
+ C - HxN      3.16 3.46 49  0.912  0.7988 
+ C - N        1.67 3.15 49  0.531  0.9510 
+ H - HxN     -1.31 3.09 49 -0.422  0.9744 
+ H - N       -2.79 3.23 49 -0.863  0.8237 
+ HxN - N     -1.48 3.30 49 -0.449  0.9696 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######ADF_Cellulose_Lignin_Ash
+
+> Data.aov <- aov(Data$rank_ADF_cellu ~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$rank_ADF_cellu ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 25.7931
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        652.9759
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         327.860  3885.498
+Deg. of Freedom              2         2
+
+Residual standard error: 44.07663
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         851.635  6163.549
+Deg. of Freedom              3        49
+
+Residual standard error: 11.21547
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1    653     653
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2    328   163.9   0.084  0.922
+Residuals       2   3885  1942.7               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)  
+Data$treatment  3    852   283.9   2.257 0.0935 .
+Residuals      49   6164   125.8                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           25.8 NaN NaN       NaN       NaN
+ H           27.2 NaN NaN       NaN       NaN
+ HxN         30.7 NaN NaN       NaN       NaN
+ N           19.4 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H       -1.41 4.56 49 -0.310  0.9896 
+ C - HxN     -4.96 4.67 49 -1.063  0.7137 
+ C - N        6.34 4.25 49  1.493  0.4492 
+ H - HxN     -3.55 4.17 49 -0.851  0.8299 
+ H - N        7.75 4.35 49  1.781  0.2945 
+ HxN - N     11.30 4.45 49  2.538  0.0664 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######NDF_Hemicellulose_Cellulose_Lignin_Ash
+
+Data.aov <- aov(Data$rank_ADF_hemi ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+Call:
+aov(formula = Data$rank_ADF_hemi ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 22.89655
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        134.0345
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         163.360  2789.548
+Deg. of Freedom              2         2
+
+Residual standard error: 37.34667
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         973.167  4589.270
+Deg. of Freedom              3        49
+
+Residual standard error: 9.677736
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1    134     134
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  163.4    81.7   0.059  0.945
+Residuals       2 2789.5  1394.8               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)  
+Data$treatment  3    973   324.4   3.464 0.0231 *
+Residuals      49   4589    93.7                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           24.3 NaN NaN       NaN       NaN
+ H           23.8 NaN NaN       NaN       NaN
+ HxN         27.6 NaN NaN       NaN       NaN
+ N           16.0 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H       0.536 3.93 49  0.136  0.9991 
+ C - HxN    -3.282 4.03 49 -0.815  0.8471 
+ C - N       8.344 3.67 49  2.276  0.1177 
+ H - HxN    -3.818 3.60 49 -1.061  0.7145 
+ H - N       7.807 3.76 49  2.078  0.1745 
+ HxN - N    11.625 3.84 49  3.026  0.0199 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+
+######ADF_NDF
+
+Data.aov <- aov(Data$rank_ADF_NDF ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$rank_ADF_NDF ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$rank_ADF_NDF ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 24.89655
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        740.3598
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        708.3813 2997.4760
+Deg. of Freedom              2         2
+
+Residual standard error: 38.71354
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         121.698  7607.464
+Deg. of Freedom              3        49
+
+Residual standard error: 12.46011
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  740.4   740.4
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  708.4   354.2   0.236  0.809
+Residuals       2 2997.5  1498.7               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  3    122   40.57   0.261  0.853
+Residuals      49   7607  155.25               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           22.8 NaN NaN       NaN       NaN
+ H           25.5 NaN NaN       NaN       NaN
+ HxN         27.2 NaN NaN       NaN       NaN
+ N           24.1 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H       -2.73 5.06 49 -0.538  0.9492 
+ C - HxN     -4.48 5.18 49 -0.864  0.8234 
+ C - N       -1.36 4.72 49 -0.288  0.9916 
+ H - HxN     -1.75 4.63 49 -0.378  0.9813 
+ H - N        1.37 4.84 49  0.283  0.9920 
+ HxN - N      3.12 4.95 49  0.631  0.9216 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######cellulose
+
+Data.aov <- aov(Data$rank_cellulose ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+
+> Data.aov <- aov(Data$rank_cellulose ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$rank_cellulose ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 26.91379
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        1790.072
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares          41.626  3549.394
+Deg. of Freedom              2         2
+
+Residual standard error: 42.12715
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        1275.355  8674.121
+Deg. of Freedom              3        49
+
+Residual standard error: 13.30499
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1   1790    1790
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2     42    20.8   0.012  0.988
+Residuals       2   3549  1774.7               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)  
+Data$treatment  3   1275   425.1   2.401 0.0789 .
+Residuals      49   8674   177.0                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           29.8 NaN NaN       NaN       NaN
+ H           25.3 NaN NaN       NaN       NaN
+ HxN         32.6 NaN NaN       NaN       NaN
+ N           20.0 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H        4.52 5.41 49  0.837  0.8365 
+ C - HxN     -2.85 5.54 49 -0.515  0.9550 
+ C - N        9.78 5.04 49  1.942  0.2243 
+ H - HxN     -7.38 4.95 49 -1.491  0.4505 
+ H - N        5.26 5.16 49  1.019  0.7394 
+ HxN - N     12.64 5.28 49  2.392  0.0919 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+
+######hemicellulose
+
+Data.aov <- aov(Data$rank_hemicellulose ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$rank_hemicellulose ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$rank_hemicellulose ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 26.65517
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        653.9737
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        790.4451 1678.4464
+Deg. of Freedom              2         2
+
+Residual standard error: 28.96935
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         235.408  8946.830
+Deg. of Freedom              3        49
+
+Residual standard error: 13.51253
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1    654     654
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  790.4   395.2   0.471   0.68
+Residuals       2 1678.4   839.2               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  3    235   78.47    0.43  0.733
+Residuals      49   8947  182.59               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           30.1 NaN NaN       NaN       NaN
+ H           26.6 NaN NaN       NaN       NaN
+ HxN         25.2 NaN NaN       NaN       NaN
+ N           24.7 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H       3.513 5.49 49 0.640   0.9185 
+ C - HxN     4.973 5.62 49 0.885   0.8128 
+ C - N       5.410 5.12 49 1.057   0.7168 
+ H - HxN     1.460 5.02 49 0.291   0.9913 
+ H - N       1.898 5.24 49 0.362   0.9836 
+ HxN - N     0.437 5.36 49 0.081   0.9998 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######lignin
+
+Data.aov <- aov(Data$rank_lignin ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$rank_lignin ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$rank_lignin ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 28.13793
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        1698.399
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         666.754  1393.069
+Deg. of Freedom              2         2
+
+Residual standard error: 26.39194
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        1959.533  8475.141
+Deg. of Freedom              3        49
+
+Residual standard error: 13.1515
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1   1698    1698
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  666.8   333.4   0.479  0.676
+Residuals       2 1393.1   696.5               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)  
+Data$treatment  3   1960   653.2   3.776 0.0162 *
+Residuals      49   8475   173.0                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           21.8 NaN NaN       NaN       NaN
+ H           37.6 NaN NaN       NaN       NaN
+ HxN         24.4 NaN NaN       NaN       NaN
+ N           28.7 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate   SE df t.ratio p.value
+ C - H      -15.77 5.34 49 -2.952  0.0242 
+ C - HxN     -2.55 5.47 49 -0.466  0.9662 
+ C - N       -6.85 4.98 49 -1.375  0.5206 
+ H - HxN     13.22 4.89 49  2.704  0.0449 
+ H - N        8.92 5.10 49  1.748  0.3108 
+ HxN - N     -4.30 5.22 49 -0.824  0.8429 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Ca
+
+Data = read.csv("VOCs_minerals.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$Ca ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+Call:
+aov(formula = Data$Ca ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 0.5383621
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares       0.1073755
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment  Residuals
+Sum of Squares      0.00619394 0.07528847
+Deg. of Freedom              2          2
+
+Residual standard error: 0.1940212
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment  Residuals
+Sum of Squares      0.04760581 0.31580570
+Deg. of Freedom              3         49
+
+Residual standard error: 0.08028085
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1 0.1074  0.1074
+
+Error: Data$plot:Data$sampling
+               Df  Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2 0.00619 0.00310   0.082  0.924
+Residuals       2 0.07529 0.03764               
+
+Error: Within
+               Df  Sum Sq  Mean Sq F value Pr(>F)  
+Data$treatment  3 0.04761 0.015869   2.462 0.0735 .
+Residuals      49 0.31581 0.006445                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control    0.568 NaN NaN       NaN       NaN
+ heated     0.555 NaN NaN       NaN       NaN
+ hxn        0.488 NaN NaN       NaN       NaN
+ nitrogen   0.542 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate     SE df t.ratio p.value
+ control - heated     0.0127 0.0326 49  0.391  0.9795 
+ control - hxn        0.0802 0.0334 49  2.400  0.0904 
+ control - nitrogen   0.0261 0.0304 49  0.858  0.8261 
+ heated - hxn         0.0674 0.0298 49  2.259  0.1221 
+ heated - nitrogen    0.0134 0.0312 49  0.428  0.9733 
+ hxn - nitrogen      -0.0541 0.0319 49 -1.696  0.3365 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######P 
+Data.aov <- aov(Data$P ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$P ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$P ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 0.1051724
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares     0.001059307
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment    Residuals
+Sum of Squares    0.0026836449 0.0003306989
+Deg. of Freedom              2            2
+
+Residual standard error: 0.01285883
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment   Residuals
+Sum of Squares     0.002173654 0.011000970
+Deg. of Freedom              3          49
+
+Residual standard error: 0.01498364
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df   Sum Sq  Mean Sq
+Data$treatment  1 0.001059 0.001059
+
+Error: Data$plot:Data$sampling
+               Df    Sum Sq   Mean Sq F value Pr(>F)
+Data$treatment  2 0.0026836 0.0013418   8.115   0.11
+Residuals       2 0.0003307 0.0001653               
+
+Error: Within
+               Df   Sum Sq   Mean Sq F value Pr(>F)  
+Data$treatment  3 0.002174 0.0007246   3.227 0.0303 *
+Residuals      49 0.011001 0.0002245                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control   0.1142 NaN NaN       NaN       NaN
+ heated    0.0954 NaN NaN       NaN       NaN
+ hxn       0.1045 NaN NaN       NaN       NaN
+ nitrogen  0.1066 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate      SE df t.ratio p.value
+ control - heated    0.01879 0.00609 49  3.087  0.0169 
+ control - hxn       0.00967 0.00623 49  1.551  0.4159 
+ control - nitrogen  0.00763 0.00567 49  1.344  0.5397 
+ heated - hxn       -0.00912 0.00557 49 -1.638  0.3674 
+ heated - nitrogen  -0.01116 0.00582 49 -1.919  0.2334 
+ hxn - nitrogen     -0.00204 0.00595 49 -0.343  0.9860 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######Mg 
+Data.aov <- aov(Data$Mg ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Mg ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Mg ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 0.1124138
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares    0.0008570592
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment   Residuals
+Sum of Squares     0.003775729 0.007706330
+Deg. of Freedom              2           2
+
+Residual standard error: 0.06207387
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment   Residuals
+Sum of Squares     0.002452418 0.020070532
+Deg. of Freedom              3          49
+
+Residual standard error: 0.02023864
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df    Sum Sq   Mean Sq
+Data$treatment  1 0.0008571 0.0008571
+
+Error: Data$plot:Data$sampling
+               Df   Sum Sq  Mean Sq F value Pr(>F)
+Data$treatment  2 0.003776 0.001888    0.49  0.671
+Residuals       2 0.007706 0.003853               
+
+Error: Within
+               Df   Sum Sq   Mean Sq F value Pr(>F)
+Data$treatment  3 0.002452 0.0008175   1.996  0.127
+Residuals      49 0.020071 0.0004096               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control    0.125 NaN NaN       NaN       NaN
+ heated     0.107 NaN NaN       NaN       NaN
+ hxn        0.107 NaN NaN       NaN       NaN
+ nitrogen   0.110 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast            estimate      SE df t.ratio p.value
+ control - heated    0.017520 0.00822 49  2.131  0.1577 
+ control - hxn       0.017411 0.00842 49  2.068  0.1781 
+ control - nitrogen  0.014484 0.00766 49  1.890  0.2457 
+ heated - hxn       -0.000109 0.00753 49 -0.015  1.0000 
+ heated - nitrogen  -0.003036 0.00786 49 -0.387  0.9802 
+ hxn - nitrogen     -0.002927 0.00804 49 -0.364  0.9833 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######K
+Data.aov <- aov(Data$K ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$K ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$K ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 0.1713793
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares     0.003025099
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment  Residuals
+Sum of Squares      0.00978422 0.11790384
+Deg. of Freedom              2          2
+
+Residual standard error: 0.2428002
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment  Residuals
+Sum of Squares      0.00362329 0.24855320
+Deg. of Freedom              3         49
+
+Residual standard error: 0.07122159
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df   Sum Sq  Mean Sq
+Data$treatment  1 0.003025 0.003025
+
+Error: Data$plot:Data$sampling
+               Df  Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2 0.00978 0.00489   0.083  0.923
+Residuals       2 0.11790 0.05895               
+
+Error: Within
+               Df  Sum Sq  Mean Sq F value Pr(>F)
+Data$treatment  3 0.00362 0.001208   0.238  0.869
+Residuals      49 0.24855 0.005073               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control    0.183 NaN NaN       NaN       NaN
+ heated     0.168 NaN NaN       NaN       NaN
+ hxn        0.159 NaN NaN       NaN       NaN
+ nitrogen   0.176 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate     SE df t.ratio p.value
+ control - heated    0.01451 0.0289 49  0.501  0.9583 
+ control - hxn       0.02450 0.0296 49  0.827  0.8416 
+ control - nitrogen  0.00747 0.0270 49  0.277  0.9925 
+ heated - hxn        0.00999 0.0265 49  0.377  0.9815 
+ heated - nitrogen  -0.00704 0.0276 49 -0.255  0.9941 
+ hxn - nitrogen     -0.01702 0.0283 49 -0.602  0.9309 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Na
+Data.aov <- aov(Data$Na ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Na ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Na ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 0.005689655
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares    0.0002357273
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment    Residuals
+Sum of Squares    0.0000962318 0.0003829491
+Deg. of Freedom              2            2
+
+Residual standard error: 0.01383743
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment    Residuals
+Sum of Squares    0.0001463883 0.0009611173
+Deg. of Freedom              3           49
+
+Residual standard error: 0.004428842
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df    Sum Sq   Mean Sq
+Data$treatment  1 0.0002357 0.0002357
+
+Error: Data$plot:Data$sampling
+               Df    Sum Sq   Mean Sq F value Pr(>F)
+Data$treatment  2 0.0000962 4.812e-05   0.251  0.799
+Residuals       2 0.0003829 1.915e-04               
+
+Error: Within
+               Df    Sum Sq   Mean Sq F value Pr(>F)  
+Data$treatment  3 0.0001464 4.880e-05   2.488 0.0714 .
+Residuals      49 0.0009611 1.961e-05                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment  lsmean  SE  df asymp.LCL asymp.UCL
+ control   0.00434 NaN NaN       NaN       NaN
+ heated    0.00536 NaN NaN       NaN       NaN
+ hxn       0.00862 NaN NaN       NaN       NaN
+ nitrogen  0.00444 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast            estimate      SE df t.ratio p.value
+ control - heated   -1.02e-03 0.00180 49 -0.567  0.9415 
+ control - hxn      -4.28e-03 0.00184 49 -2.323  0.1066 
+ control - nitrogen -9.78e-05 0.00168 49 -0.058  0.9999 
+ heated - hxn       -3.26e-03 0.00165 49 -1.981  0.2092 
+ heated - nitrogen   9.22e-04 0.00172 49  0.536  0.9498 
+ hxn - nitrogen      4.18e-03 0.00176 49  2.379  0.0946 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Fe
+Data.aov <- aov(Data$Fe ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Fe ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Fe ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 1026.259
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        26881542
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         42050.8  805608.3
+Deg. of Freedom              2         2
+
+Residual standard error: 634.6685
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        30979310 131393493
+Deg. of Freedom              3        49
+
+Residual standard error: 1637.529
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df   Sum Sq  Mean Sq
+Data$treatment  1 26881542 26881542
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  42051   21025   0.052   0.95
+Residuals       2 805608  402804               
+
+Error: Within
+               Df    Sum Sq  Mean Sq F value Pr(>F)  
+Data$treatment  3  30979310 10326437   3.851 0.0149 *
+Residuals      49 131393493  2681500                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control     1648 NaN NaN       NaN       NaN
+ heated       137 NaN NaN       NaN       NaN
+ hxn         1848 NaN NaN       NaN       NaN
+ nitrogen     471 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate  SE df t.ratio p.value
+ control - heated       1511 665 49  2.271  0.1189 
+ control - hxn          -200 681 49 -0.294  0.9911 
+ control - nitrogen     1177 620 49  1.898  0.2421 
+ heated - hxn          -1711 609 49 -2.810  0.0346 
+ heated - nitrogen      -334 636 49 -0.525  0.9527 
+ hxn - nitrogen         1377 650 49  2.119  0.1616 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Mn
+Data.aov <- aov(Data$Mn ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Mn ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Mn ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 517.5862
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        856.4063
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        24036.72  42660.54
+Deg. of Freedom              2         2
+
+Residual standard error: 146.0489
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         77735.5  521184.9
+Deg. of Freedom              3        49
+
+Residual standard error: 103.1331
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  856.4   856.4
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  24037   12018   0.563   0.64
+Residuals       2  42661   21330               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)  
+Data$treatment  3  77735   25912   2.436 0.0758 .
+Residuals      49 521185   10636                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control      580 NaN NaN       NaN       NaN
+ heated       504 NaN NaN       NaN       NaN
+ hxn          510 NaN NaN       NaN       NaN
+ nitrogen     477 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate   SE df t.ratio p.value
+ control - heated       76.5 41.9 49  1.827  0.2734 
+ control - hxn          70.1 42.9 49  1.634  0.3693 
+ control - nitrogen    103.3 39.1 49  2.645  0.0518 
+ heated - hxn           -6.4 38.3 49 -0.167  0.9983 
+ heated - nitrogen      26.8 40.0 49  0.669  0.9083 
+ hxn - nitrogen         33.2 40.9 49  0.810  0.8493 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######Zn
+Data.aov <- aov(Data$Zn ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Zn ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Zn ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 38.89655
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        7.491354
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         83.3666  498.5166
+Deg. of Freedom              2         2
+
+Residual standard error: 15.78792
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        406.4945 1037.5102
+Deg. of Freedom              3        49
+
+Residual standard error: 4.601487
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  7.491   7.491
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2   83.4   41.68   0.167  0.857
+Residuals       2  498.5  249.26               
+
+Error: Within
+               Df Sum Sq Mean Sq F value   Pr(>F)    
+Data$treatment  3  406.5  135.50   6.399 0.000957 ***
+Residuals      49 1037.5   21.17                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control     42.0 NaN NaN       NaN       NaN
+ heated      41.0 NaN NaN       NaN       NaN
+ hxn         35.3 NaN NaN       NaN       NaN
+ nitrogen    37.3 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate   SE df t.ratio p.value
+ control - heated      0.976 1.87 49  0.522  0.9534 
+ control - hxn         6.731 1.91 49  3.516  0.0051 
+ control - nitrogen    4.719 1.74 49  2.708  0.0445 
+ heated - hxn          5.755 1.71 49  3.364  0.0079 
+ heated - nitrogen     3.743 1.79 49  2.096  0.1688 
+ hxn - nitrogen       -2.012 1.83 49 -1.101  0.6904 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Cu
+Data.aov <- aov(Data$Cu ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Cu ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Cu ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 7.646552
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        2.083208
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        3.314301  3.524332
+Deg. of Freedom              2         2
+
+Residual standard error: 1.327466
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        15.80985  60.27262
+Deg. of Freedom              3        49
+
+Residual standard error: 1.109078
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  2.083   2.083
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  3.314   1.657    0.94  0.515
+Residuals       2  3.524   1.762               
+
+Error: Within
+               Df Sum Sq Mean Sq F value  Pr(>F)   
+Data$treatment  3  15.81    5.27   4.284 0.00919 **
+Residuals      49  60.27    1.23                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control     8.13 NaN NaN       NaN       NaN
+ heated      6.72 NaN NaN       NaN       NaN
+ hxn         7.89 NaN NaN       NaN       NaN
+ nitrogen    7.85 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate    SE df t.ratio p.value
+ control - heated     1.4044 0.451 49  3.117  0.0156 
+ control - hxn        0.2396 0.461 49  0.519  0.9541 
+ control - nitrogen   0.2702 0.420 49  0.643  0.9174 
+ heated - hxn        -1.1648 0.412 49 -2.825  0.0334 
+ heated - nitrogen   -1.1342 0.430 49 -2.635  0.0530 
+ hxn - nitrogen       0.0306 0.440 49  0.069  0.9999 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######respiration
+
+Data = read.csv("VOCs_environmental.csv", header=TRUE)
+
+Data.aov <- aov(Data$respiration~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$respiration~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$respiration ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 259.7286
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        27931.38
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        230764.8  330790.2
+Deg. of Freedom              2         2
+
+Residual standard error: 406.6879
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         30475.8  532746.9
+Deg. of Freedom              3        49
+
+Residual standard error: 104.2707
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  27931   27931
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2 230765  115382   0.698  0.589
+Residuals       2 330790  165395               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  3  30476   10159   0.934  0.431
+Residuals      49 532747   10872               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control      255 NaN NaN       NaN       NaN
+ heated       225 NaN NaN       NaN       NaN
+ hxn          273 NaN NaN       NaN       NaN
+ nitrogen     286 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate   SE df t.ratio p.value
+ control - heated       30.5 42.4 49  0.719  0.8890 
+ control - hxn         -18.5 43.4 49 -0.426  0.9738 
+ control - nitrogen    -30.9 39.5 49 -0.783  0.8617 
+ heated - hxn          -48.9 38.8 49 -1.263  0.5907 
+ heated - nitrogen     -61.4 40.5 49 -1.517  0.4353 
+ hxn - nitrogen        -12.5 41.4 49 -0.301  0.9904 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######moisture
+Data.aov <- aov(Data$percent_moisture ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$percent_moisture ~ Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$percent_moisture ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 14.51655
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        396.4196
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        606.6934  658.5865
+Deg. of Freedom              2         2
+
+Residual standard error: 18.14644
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares         375.600  1345.634
+Deg. of Freedom              3        49
+
+Residual standard error: 5.240412
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  396.4   396.4
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  606.7   303.3   0.921  0.521
+Residuals       2  658.6   329.3               
+
+Error: Within
+               Df Sum Sq Mean Sq F value  Pr(>F)   
+Data$treatment  3  375.6  125.20   4.559 0.00678 **
+Residuals      49 1345.6   27.46                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control     17.6 NaN NaN       NaN       NaN
+ heated      13.8 NaN NaN       NaN       NaN
+ hxn         10.1 NaN NaN       NaN       NaN
+ nitrogen    16.5 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate   SE df t.ratio p.value
+ control - heated       3.84 2.13 49  1.804  0.2840 
+ control - hxn          7.51 2.18 49  3.443  0.0063 
+ control - nitrogen     1.14 1.98 49  0.577  0.9386 
+ heated - hxn           3.67 1.95 49  1.883  0.2488 
+ heated - nitrogen     -2.70 2.03 49 -1.325  0.5518 
+ hxn - nitrogen        -6.36 2.08 49 -3.058  0.0183 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Temp_T0
+
+Data.aov <- aov(Data$Temp_T0~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$Temp_T0~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$Temp_T0 ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 19.17241
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares        5.213075
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        915.7115  887.2614
+Deg. of Freedom              2         2
+
+Residual standard error: 21.06254
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares          7.1421  856.2678
+Deg. of Freedom              3        49
+
+Residual standard error: 4.180293
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1  5.213   5.213
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2  915.7   457.9   1.032  0.492
+Residuals       2  887.3   443.6               
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  3    7.1   2.381   0.136  0.938
+Residuals      49  856.3  17.475               
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control     18.8 NaN NaN       NaN       NaN
+ heated      19.6 NaN NaN       NaN       NaN
+ hxn         19.5 NaN NaN       NaN       NaN
+ nitrogen    18.7 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate   SE df t.ratio p.value
+ control - heated    -0.7899 1.70 49 -0.465  0.9663 
+ control - hxn       -0.7414 1.74 49 -0.426  0.9737 
+ control - nitrogen   0.0639 1.58 49  0.040  1.0000 
+ heated - hxn         0.0485 1.55 49  0.031  1.0000 
+ heated - nitrogen    0.8538 1.62 49  0.526  0.9523 
+ hxn - nitrogen       0.8054 1.66 49  0.485  0.9620 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######Thickness
+
+Data.aov <- aov(Data$thickness_OM~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+
+> Data.aov <- aov(Data$thickness_OM~Data$treatment + Error(Data$plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$thickness_OM ~ Data$treatment + Error(Data$plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 4.377931
+
+Stratum 1: Data$plot
+
+Terms:
+                Data$treatment
+Sum of Squares       0.8863568
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$plot:Data$sampling
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares       0.6564173 0.7360623
+Deg. of Freedom              2         2
+
+Residual standard error: 0.6066557
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$treatment Residuals
+Sum of Squares        12.69695  26.00236
+Deg. of Freedom              3        49
+
+Residual standard error: 0.7284644
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$treatment  1 0.8864  0.8864
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$treatment  2 0.6564  0.3282   0.892  0.529
+Residuals       2 0.7361  0.3680               
+
+Error: Within
+               Df Sum Sq Mean Sq F value   Pr(>F)    
+Data$treatment  3   12.7   4.232   7.976 0.000198 ***
+Residuals      49   26.0   0.531                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ treatment lsmean  SE  df asymp.LCL asymp.UCL
+ control     4.19 NaN NaN       NaN       NaN
+ heated      5.19 NaN NaN       NaN       NaN
+ hxn         4.01 NaN NaN       NaN       NaN
+ nitrogen    4.12 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast           estimate    SE df t.ratio p.value
+ control - heated    -0.9982 0.296 49 -3.373  0.0077 
+ control - hxn        0.1853 0.303 49  0.611  0.9280 
+ control - nitrogen   0.0741 0.276 49  0.269  0.9931 
+ heated - hxn         1.1834 0.271 49  4.369  0.0004 
+ heated - nitrogen    1.0723 0.283 49  3.792  0.0023 
+ hxn - nitrogen      -0.1112 0.289 49 -0.384  0.9805 
+
+P value adjustment: tukey method for comparing a family of 4 estimate
+
