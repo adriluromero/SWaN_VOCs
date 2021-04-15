@@ -11,6 +11,63 @@ library(lsmeans)
 library(emmeans)
 library(psych)
 
+######acid
+
+Input = ("plot	Treatment	sampling	ER_final	rank
+4	heated_nitrogen	one	0.01	1
+1	control	five	0.01	1
+6	nitrogen	five	0.01	1
+3	heated_nitrogen	five	0.02	2
+8	heated	one	0.08	3
+6	nitrogen	one	0.09	4
+7	heated_nitrogen	one	0.11	5
+1	control	one	0.12	6
+12	control	one	0.12	6
+2	heated	one	0.12	6
+           ")
+Data = read.table(textConnection(Input),header=TRUE)
+
+Data.aov <- aov(Data$rank ~ Data$Treatment + Error(Data$plot/Data$sampling), data = Data)
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+Error: Data$plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1  2.046   2.046
+
+Error: Data$plot:Data$sampling
+               Df Sum Sq Mean Sq
+Data$Treatment  1  12.84   12.84
+
+Error: Within
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$Treatment  3  2.985   0.995   0.162  0.917
+Residuals       4 24.632   6.158               
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment       lsmean  SE  df asymp.LCL asymp.UCL
+ control           3.98 NaN NaN       NaN       NaN
+ heated            3.92 NaN NaN       NaN       NaN
+ heated_nitrogen   2.67 NaN NaN       NaN       NaN
+ nitrogen          3.43 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast                   estimate   SE df t.ratio p.value
+ control - heated             0.0518 2.27  4  0.023  1.0000 
+ control - heated_nitrogen    1.3062 2.05  4  0.636  0.9153 
+ control - nitrogen           0.5442 2.69  4  0.203  0.9966 
+ heated - heated_nitrogen     1.2543 2.32  4  0.541  0.9444 
+ heated - nitrogen            0.4924 2.94  4  0.167  0.9981 
+ heated_nitrogen - nitrogen  -0.7619 2.52  4 -0.302  0.9891 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
 ######alcohol 
 
 Input = ("Treatment	Plot	sampling	ER_final	rank
