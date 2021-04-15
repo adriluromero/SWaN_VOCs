@@ -1,0 +1,149 @@
+######Data analyses and plotting scripts for Romero-Olivares et al. VOC manuscript 
+######"Impacts to soil and litter volatile organic compounds in response to chronic heating and nitrogen addition"
+
+
+
+
+######NMDS
+library(ggplot2)
+library(RColorBrewer)
+
+otu_rel <- read.csv("for_NMDS_both_years_samplings.csv", header = T, sep = ",")
+View(otu_rel)
+dim(otu_rel) ####58, 175
+comm.num <- otu_rel[ ,5:176]
+View(comm.num)
+set.seed(200)
+library(vegan)
+otu.nms_1 <- metaMDS(comm.num, distance = "bray", trymax = 2000, autotransform = F)
+otu.nms_1
+otu.nms_2 <- otu_rel[ ,1:4]
+View(otu.nms_2)
+MDS1 = otu.nms_1$points[,1]
+MDS1
+MDS2 = otu.nms_1$points[,2]
+MDS2
+NMDS = data.frame(MDS1 = MDS1, MDS2 = MDS2, treatment = otu.nms_2$treatment, sampling = otu.nms_2$sampling)
+
+> otu_rel <- read.csv("for_NMDS_both_years_samplings.csv", header = T, sep = ",")
+> View(otu_rel)
+> dim(otu_rel) ####58, 175
+[1]  58 177
+> comm.num <- otu_rel[ ,5:176]
+> View(comm.num)
+> set.seed(200)
+> library(vegan)
+> otu.nms_1 <- metaMDS(comm.num, distance = "bray", trymax = 2000, autotransform = F)
+Run 0 stress 0.1717919 
+Run 1 stress 0.1691227 
+... New best solution
+... Procrustes: rmse 0.03600313  max resid 0.1954644 
+Run 2 stress 0.1691227 
+... Procrustes: rmse 2.174343e-05  max resid 0.000106487 
+... Similar to previous best
+Run 3 stress 0.1931612 
+Run 4 stress 0.1683978 
+... New best solution
+... Procrustes: rmse 0.02954343  max resid 0.1756609 
+Run 5 stress 0.1646628 
+... New best solution
+... Procrustes: rmse 0.02537378  max resid 0.1775148 
+Run 6 stress 0.1826848 
+Run 7 stress 0.1686955 
+Run 8 stress 0.1763295 
+Run 9 stress 0.1740134 
+Run 10 stress 0.1751759 
+Run 11 stress 0.1701915 
+Run 12 stress 0.1700253 
+Run 13 stress 0.1691227 
+Run 14 stress 0.168697 
+Run 15 stress 0.1760957 
+Run 16 stress 0.1686971 
+Run 17 stress 0.1666034 
+Run 18 stress 0.1752201 
+Run 19 stress 0.1646701 
+... Procrustes: rmse 0.001632773  max resid 0.009630936 
+... Similar to previous best
+Run 20 stress 0.1646628 
+... New best solution
+... Procrustes: rmse 2.421007e-05  max resid 0.0001215998 
+... Similar to previous best
+*** Solution reached
+> otu.nms_1
+
+Call:
+metaMDS(comm = comm.num, distance = "bray", trymax = 2000, autotransform = F) 
+
+global Multidimensional Scaling using monoMDS
+
+Data:     comm.num 
+Distance: bray 
+
+Dimensions: 2 
+Stress:     0.1646628 
+Stress type 1, weak ties
+Two convergent solutions found after 20 tries
+Scaling: centring, PC rotation, halfchange scaling 
+Species: expanded scores based on ‘comm.num’ 
+
+> otu.nms_2 <- otu_rel[ ,1:4]
+> View(otu.nms_2)
+> MDS1 = otu.nms_1$points[,1]
+> MDS1
+          1           2           3           4           5           6           7           8           9          10 
+-0.25333786  0.01259366 -0.55942190 -0.68489286 -1.18386144 -0.86082295 -0.13213272 -0.07845349 -0.28022704 -0.56950114 
+         11          12          13          14          15          16          17          18          19          20 
+-0.48323093 -1.05586583 -0.76499091 -0.59208631 -1.18240109 -0.71018281 -0.42739355 -0.71261826 -0.69805202 -0.90908095 
+         21          22          23          24          25          26          27          28          29          30 
+-0.77527801 -0.43766635 -1.66805364 -0.83967522 -0.82360794 -0.35512973 -0.81932997 -0.56807553 -0.63721700 -0.93166995 
+         31          32          33          34          35          36          37          38          39          40 
+-1.29728683 -0.55459999 -0.86902617 -0.79202382  1.23297435  0.74659443  0.79464031  1.81453456  0.43743224  1.54883389 
+         41          42          43          44          45          46          47          48          49          50 
+ 1.11386298  0.78126945  0.78780096  1.91813487  1.61465074  1.34580511  0.97163477  0.29445207  1.32600524  0.09200028 
+         51          52          53          54          55          56          57          58 
+ 2.58406803  1.05724760  0.64695295 -0.35641968  0.05856988  1.03714387  0.73103988  0.91537175 
+> MDS2 = otu.nms_1$points[,2]
+> MDS2
+            1             2             3             4             5             6             7             8 
+-0.5000882201 -1.0152005182 -0.2740896665  0.3657910568  0.0655389109  0.7148574943 -0.3012209036 -0.1788865269 
+            9            10            11            12            13            14            15            16 
+-0.2527790556 -0.5270681405 -0.3066956549 -0.1906432263  0.1534701828  0.2703250090  0.1499762257 -0.2070587451 
+           17            18            19            20            21            22            23            24 
+-0.1627832502 -0.1144363931 -0.2996705165 -0.5365704746 -0.3337357623  0.9208708373  0.5813699447  0.1577775348 
+           25            26            27            28            29            30            31            32 
+-0.2128712663 -0.2116376444 -0.2573842253 -0.1754315822 -0.0002821197  0.2030818903  0.4503281314 -0.3871021399 
+           33            34            35            36            37            38            39            40 
+-0.4503484669 -0.4264666495 -0.4467117520  0.8205008107  0.5709586348 -0.5882950158  0.8957210761  0.3992258542 
+           41            42            43            44            45            46            47            48 
+-1.1085657203 -1.1556405663  0.2124031522  0.3667682726 -0.1389176826  0.2360655609 -1.1260873059  0.4506430232 
+           49            50            51            52            53            54            55            56 
+-0.8749446009  0.2121359636  0.3898274342  0.8635588498  1.4122924137  0.5273777999  1.1177241299 -0.9317236706 
+           57            58 
+ 0.7368959079  0.4478513612 
+> NMDS = data.frame(MDS1 = MDS1, MDS2 = MDS2, treatment = otu.nms_2$treatment, sampling = otu.nms_2$sampling)
+
+######plot
+library(ggplot2)
+
+plot <- qplot(MDS1, MDS2, data=NMDS, color=treatment, alpha=0.5, shape=sampling, size=1)
+plot
+
+library(RColorBrewer)
+
+cbbPalette <- c("#009E73", "#e79f00", "#0072B2", "#D55E00", "#CC79A7", "#9999CC")
+
+
+VOCs_ALL <- plot + 
+  theme(panel.grid = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+        axis.title.x = element_text(color="black", vjust=1),
+        axis.title.y = element_text(color="black" , vjust=1)) +
+  scale_color_manual(values = cbbPalette) +
+  theme(strip.background = element_rect(colour="black", fill="white",
+                                        size=0.5, linetype="solid"))
+
+VOCs_ALL
+jpeg("NMDS_per_sampling.jpeg",height=6,width=10,units = 'in', res = 600)#height in inches, resolution 600 dpi
+plot(VOCs_ALL)
+dev.off()
