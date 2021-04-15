@@ -1,0 +1,1743 @@
+######Data analyses and plotting scripts for Romero-Olivares et al. VOC manuscript 
+######"Impacts to soil and litter volatile organic compounds in response to chronic heating and nitrogen addition"
+
+
+
+
+######Repeated measures ANOVA ALL VOCs 
+library(multcompView)
+library(multcomp)
+library(lsmeans)
+library(emmeans)
+library(psych)
+
+Data = read.csv("for_ANOVA_all_VOCs_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+> Data = read.csv("for_ANOVA_all_VOCs_new.csv", header=TRUE)
+> headTail(Data)
+                        Filename  RRT Group  Class       MF Treatment    ID Year   Month                  VOC ER_final
+1      18.2395_191101_57_5_h.CDF 1.03    MT     MT   C10H16         H   5_h 2019 October                   mt        0
+2    17.2394_191101_56_4_hxn.CDF 1.03    MT     MT   C10H16       HxN 4_hxn 2019 October                   mt        0
+3      47.2554_191108_60_8_h.CDF 0.35  OVOC  furan   C5H10O         H   8_h 2019 October                furan        0
+4    20.2397_191101_59_7_hxn.CDF 1.83    ST     ST   C15H22       HxN 7_hxn 2019 October                   st        0
+...                         <NA>  ...  <NA>   <NA>     <NA>      <NA>  <NA>  ...    <NA>                 <NA>      ...
+5029             5.3_hxn_AUG.CDF  2.7  OVOC    oBz C24H38O4       HxN 3_hxn 2018  August diisooctyl phthalate    37.38
+5030            12.7_hxn_AUG.CDF  2.7  OVOC    oBz C24H38O4       HxN 7_hxn 2018  August diisooctyl phthalate    37.78
+5031             18.11_n_AUG.CDF  2.7  OVOC    oBz C24H38O4         N  11_n 2018  August diisooctyl phthalate    45.44
+5032             7.4_hxn_AUG.CDF 0.59    HC alkane    C8H18       HxN 4_hxn 2018  August               octane    78.11
+     log_10 Plot sampling
+1       5.5    5     five
+2      5.82    4     five
+3      6.09    8     five
+4      6.48    7     five
+...     ...  ...     <NA>
+5029  11.57    3      two
+5030  11.58    7      two
+5031  11.66   11      two
+5032  11.89    4      two
+> str(Data)
+'data.frame':	5032 obs. of  14 variables:
+ $ Filename : chr  "18.2395_191101_57_5_h.CDF" "17.2394_191101_56_4_hxn.CDF" "47.2554_191108_60_8_h.CDF" "20.2397_191101_59_7_hxn.CDF" ...
+ $ RRT      : num  1.034 1.034 0.352 1.835 1.034 ...
+ $ Group    : chr  "MT" "MT" "OVOC" "ST" ...
+ $ Class    : chr  "MT" "MT" "furan" "ST" ...
+ $ MF       : chr  "C10H16" "C10H16" "C5H10O" "C15H22" ...
+ $ Treatment: chr  "H" "HxN" "H" "HxN" ...
+ $ ID       : chr  "5_h" "4_hxn" "8_h" "7_hxn" ...
+ $ Year     : int  2019 2019 2019 2019 2019 2019 2019 2019 2019 2019 ...
+ $ Month    : chr  "October" "October" "October" "October" ...
+ $ VOC      : chr  "mt" "mt" "furan" "st" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.5 5.82 6.09 6.48 6.49 6.55 6.55 6.58 6.58 6.59 ...
+ $ Plot     : int  5 4 8 7 19 6 5 2 8 7 ...
+ $ sampling : chr  "five" "five" "five" "five" ...
+> summary(Data)   
+   Filename              RRT           Group              Class                MF             Treatment        
+ Length:5032        Min.   :0.228   Length:5032        Length:5032        Length:5032        Length:5032       
+ Class :character   1st Qu.:0.574   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :1.009   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :1.116                                                                              
+                    3rd Qu.:1.570                                                                              
+                    Max.   :2.704                                                                              
+      ID                 Year         Month               VOC               ER_final           log_10      
+ Length:5032        Min.   :2018   Length:5032        Length:5032        Min.   : 0.0000   Min.   : 5.210  
+ Class :character   1st Qu.:2018   Class :character   Class :character   1st Qu.: 0.0300   1st Qu.: 8.510  
+ Mode  :character   Median :2018   Mode  :character   Mode  :character   Median : 0.1700   Median : 9.220  
+                    Mean   :2018                                         Mean   : 1.0518   Mean   : 9.161  
+                    3rd Qu.:2019                                         3rd Qu.: 0.7725   3rd Qu.: 9.890  
+                    Max.   :2019                                         Max.   :78.1100   Max.   :11.890  
+      Plot          sampling        
+ Min.   : 1.000   Length:5032       
+ 1st Qu.: 3.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 7.252                     
+ 3rd Qu.: 9.000                     
+ Max.   :19.000                     
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 9.161409
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        16.58921
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$Plot:Data$sampling
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares        25.64882  46.63462
+Deg. of Freedom              3         1
+
+Residual standard error: 6.828955
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          15.820  4746.733
+Deg. of Freedom              3      5023
+
+Residual standard error: 0.9721109
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1  16.59   16.59
+
+Error: Data$Plot:Data$sampling
+               Df Sum Sq Mean Sq F value Pr(>F)
+Data$Treatment  3  25.65    8.55   0.183  0.898
+Residuals       1  46.63   46.63               
+
+Error: Within
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+Data$Treatment    3     16   5.273    5.58 0.000809 ***
+Residuals      5023   4747   0.945                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           9.07 NaN NaN       NaN       NaN
+ H           9.15 NaN NaN       NaN       NaN
+ HxN         9.24 NaN NaN       NaN       NaN
+ N           9.19 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE   df t.ratio p.value
+ C - H     -0.0873 0.0451 5023 -1.938  0.2125 
+ C - HxN   -0.1696 0.0446 5023 -3.800  0.0008 
+ C - N     -0.1225 0.0395 5023 -3.098  0.0105 
+ H - HxN   -0.0823 0.0394 5023 -2.087  0.1574 
+ H - N     -0.0352 0.0403 5023 -0.872  0.8193 
+ HxN - N    0.0471 0.0400 5023  1.178  0.6411 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######Repeated measures ANOVA 2018
+Data = read.csv("for_ANOVA_2018_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+            Filename  RRT Group Class       MF Treatment    ID Year   Month                  VOC ER_final log_10 Plot
+1    22.19_c_AUG.CDF 1.76   oMT   oMT                  C  19_c 2018  August                  omt        0   5.21   19
+2      8.5_h_AUG.CDF 1.85    ST    ST   C15H24         H   5_h 2018  August           a-humulene        0   5.75    5
+3    20.12_c_AUG.CDF 1.64   oMT   oMT                  C  12_c 2018  August                  omt        0   5.82   12
+4    20.12_c_AUG.CDF 1.47   oMT   oMT  C10H16O         C  12_c 2018  August                  omt        0   6.05   12
+...             <NA>  ...  <NA>  <NA>     <NA>      <NA>  <NA>  ...    <NA>                 <NA>      ...    ...  ...
+3516   4.2_h_OCT.CDF  2.7  OVOC   oBz C24H38O4         H   2_h 2018 October diisooctyl phthalate    20.84  11.32    2
+3517  17.9_n_OCT.CDF  2.7  OVOC   oBz C24H38O4         N   9_n 2018 October diisooctyl phthalate    24.44  11.39    9
+3518 6.3_hxn_OCT.CDF  2.7  OVOC   oBz C24H38O4       HxN 3_hxn 2018 October diisooctyl phthalate    25.34   11.4    3
+3519  11.6_n_OCT.CDF  2.7  OVOC   oBz C24H38O4         N   6_n 2018 October diisooctyl phthalate    47.89  11.68    6
+     sampling
+1         two
+2         two
+3         two
+4         two
+...      <NA>
+3516    three
+3517    three
+3518    three
+3519    three
+
+> str(Data)
+'data.frame':	3519 obs. of  14 variables:
+ $ Filename : chr  "22.19_c_AUG.CDF" "8.5_h_AUG.CDF" "20.12_c_AUG.CDF" "20.12_c_AUG.CDF" ...
+ $ RRT      : num  1.76 1.85 1.64 1.47 1.76 ...
+ $ Group    : chr  "oMT" "ST" "oMT" "oMT" ...
+ $ Class    : chr  "oMT" "ST" "oMT" "oMT" ...
+ $ MF       : chr  "" "C15H24" "" "C10H16O" ...
+ $ Treatment: chr  "C" "H" "C" "C" ...
+ $ ID       : chr  "19_c" "5_h" "12_c" "12_c" ...
+ $ Year     : int  2018 2018 2018 2018 2018 2018 2018 2018 2018 2018 ...
+ $ Month    : chr  "August" "August" "August" "August" ...
+ $ VOC      : chr  "omt" "a-humulene" "omt" "omt" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.21 5.75 5.82 6.05 6.27 6.45 6.49 6.5 6.52 6.7 ...
+ $ Plot     : int  19 5 12 12 9 12 5 4 11 8 ...
+ $ sampling : chr  "two" "two" "two" "two" ...
+> summary(Data)   
+   Filename              RRT           Group              Class                MF             Treatment        
+ Length:3519        Min.   :0.228   Length:3519        Length:3519        Length:3519        Length:3519       
+ Class :character   1st Qu.:0.630   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :1.132   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :1.223                                                                              
+                    3rd Qu.:1.687                                                                              
+                    Max.   :2.704                                                                              
+      ID                 Year         Month               VOC               ER_final          log_10      
+ Length:3519        Min.   :2018   Length:3519        Length:3519        Min.   : 0.000   Min.   : 5.210  
+ Class :character   1st Qu.:2018   Class :character   Class :character   1st Qu.: 0.040   1st Qu.: 8.560  
+ Mode  :character   Median :2018   Mode  :character   Mode  :character   Median : 0.220   Median : 9.330  
+                    Mean   :2018                                         Mean   : 1.216   Mean   : 9.248  
+                    3rd Qu.:2018                                         3rd Qu.: 1.000   3rd Qu.:10.000  
+                    Max.   :2018                                         Max.   :78.110   Max.   :11.890  
+      Plot          sampling        
+ Min.   : 1.000   Length:3519       
+ 1st Qu.: 3.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 7.127                     
+ 3rd Qu.: 9.000                     
+ Max.   :19.000                     
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 9.248394
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        5.753276
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$Plot:Data$sampling
+
+Terms:
+                Data$Treatment
+Sum of Squares        1.924477
+Deg. of Freedom              2
+
+1 out of 3 effects not estimable
+Estimated effects may be unbalanced
+
+Stratum 3: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          25.647  3343.455
+Deg. of Freedom              3      3512
+
+Residual standard error: 0.9757094
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1  5.753   5.753
+
+Error: Data$Plot:Data$sampling
+               Df Sum Sq Mean Sq
+Data$Treatment  2  1.925  0.9622
+
+Error: Within
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+Data$Treatment    3     26   8.549    8.98 6.36e-06 ***
+Residuals      3512   3343   0.952                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           9.09 NaN NaN       NaN       NaN
+ H           9.26 NaN NaN       NaN       NaN
+ HxN         9.34 NaN NaN       NaN       NaN
+ N           9.30 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE   df t.ratio p.value
+ C - H     -0.1621 0.0536 3512 -3.026  0.0133 
+ C - HxN   -0.2504 0.0528 3512 -4.744  <.0001 
+ C - N     -0.2064 0.0482 3512 -4.285  0.0001 
+ H - HxN   -0.0884 0.0465 3512 -1.900  0.2280 
+ H - N     -0.0444 0.0486 3512 -0.914  0.7972 
+ HxN - N    0.0440 0.0484 3512  0.909  0.7998 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######Repeated measures ANOVA 2019
+Data = read.csv("for_ANOVA_2019_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+> Data = read.csv("for_ANOVA_2019_new.csv", header=TRUE)
+> 
+> headTail(Data)
+                        Filename  RRT Group Class     MF Treatment    ID Year   Month                VOC ER_final log_10
+1      18.2395_191101_57_5_h.CDF 1.03    MT    MT C10H16         H   5_h 2019 October                 mt        0    5.5
+2    17.2394_191101_56_4_hxn.CDF 1.03    MT    MT C10H16       HxN 4_hxn 2019 October                 mt        0   5.82
+3      47.2554_191108_60_8_h.CDF 0.35  OVOC furan C5H10O         H   8_h 2019 October              furan        0   6.09
+4    20.2397_191101_59_7_hxn.CDF 1.83    ST    ST C15H22       HxN 7_hxn 2019 October                 st        0   6.48
+...                         <NA>  ...  <NA>  <NA>   <NA>      <NA>  <NA>  ...    <NA>               <NA>      ...    ...
+1509 48.2556_191108_42_3_hxn.CDF  0.9    MT    MT C10H16       HxN 3_hxn 2019  August           camphene     5.41  10.73
+1510    6.2382_191101_44_5_h.CDF 1.86    ST    ST C15H24         H   5_h 2019  August trans-y-bisabolene     6.14  10.79
+1511    3.2378_191101_40_1_c.CDF 1.86    ST    ST C15H24         C   1_c 2019  August trans-y-bisabolene    16.66  11.22
+1512 48.2556_191108_42_3_hxn.CDF 2.25  OVOC  ovoc              HxN 3_hxn 2019  August               ovoc    31.36   11.5
+     Plot sampling
+1       5     five
+2       4     five
+3       8     five
+4       7     five
+...   ...     <NA>
+1509    3     four
+1510    5     four
+1511    1     four
+1512    3     four
+> str(Data)
+'data.frame':	1512 obs. of  14 variables:
+ $ Filename : chr  "18.2395_191101_57_5_h.CDF" "17.2394_191101_56_4_hxn.CDF" "47.2554_191108_60_8_h.CDF" "20.2397_191101_59_7_hxn.CDF" ...
+ $ RRT      : num  1.034 1.034 0.352 1.835 1.034 ...
+ $ Group    : chr  "MT" "MT" "OVOC" "ST" ...
+ $ Class    : chr  "MT" "MT" "furan" "ST" ...
+ $ MF       : chr  "C10H16" "C10H16" "C5H10O" "C15H22" ...
+ $ Treatment: chr  "H" "HxN" "H" "HxN" ...
+ $ ID       : chr  "5_h" "4_hxn" "8_h" "7_hxn" ...
+ $ Year     : int  2019 2019 2019 2019 2019 2019 2019 2019 2019 2019 ...
+ $ Month    : chr  "October" "October" "October" "October" ...
+ $ VOC      : chr  "mt" "mt" "furan" "st" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.5 5.82 6.09 6.48 6.49 6.55 6.55 6.58 6.58 6.59 ...
+ $ Plot     : int  5 4 8 7 19 6 5 2 8 7 ...
+ $ sampling : chr  "five" "five" "five" "five" ...
+> summary(Data)   
+   Filename              RRT            Group              Class                MF             Treatment        
+ Length:1512        Min.   :0.2280   Length:1512        Length:1512        Length:1512        Length:1512       
+ Class :character   1st Qu.:0.4660   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :0.7750   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :0.8868                                                                              
+                    3rd Qu.:1.0930                                                                              
+                    Max.   :2.3600                                                                              
+      ID                 Year         Month               VOC               ER_final           log_10      
+ Length:1512        Min.   :2019   Length:1512        Length:1512        Min.   : 0.0000   Min.   : 5.500  
+ Class :character   1st Qu.:2019   Class :character   Class :character   1st Qu.: 0.0300   1st Qu.: 8.490  
+ Mode  :character   Median :2019   Mode  :character   Mode  :character   Median : 0.1500   Median : 9.170  
+                    Mean   :2019                                         Mean   : 0.9635   Mean   : 9.092  
+                    3rd Qu.:2019                                         3rd Qu.: 0.7125   3rd Qu.: 9.852  
+                    Max.   :2019                                         Max.   :52.0900   Max.   :11.720  
+      Plot          sampling        
+ Min.   : 1.000   Length:1512       
+ 1st Qu.: 3.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 6.669                     
+ 3rd Qu.: 9.000                     
+ Max.   :19.000                     
+> 
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot/Data$sampling), 
+    data = Data)
+
+Grand Mean: 9.092143
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        15.10056
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Data$Plot:Data$sampling
+
+Terms:
+                Data$Treatment
+Sum of Squares         17.8244
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 3: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          1.3153 1490.3292
+Deg. of Freedom              3      1506
+
+Residual standard error: 0.9947836
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1   15.1    15.1
+
+Error: Data$Plot:Data$sampling
+               Df Sum Sq Mean Sq
+Data$Treatment  1  17.82   17.82
+
+Error: Within
+                 Df Sum Sq Mean Sq F value Pr(>F)
+Data$Treatment    3    1.3  0.4384   0.443  0.722
+Residuals      1506 1490.3  0.9896               
+> 
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           9.14 NaN NaN       NaN       NaN
+ H           9.06 NaN NaN       NaN       NaN
+ HxN         9.09 NaN NaN       NaN       NaN
+ N           9.07 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE   df t.ratio p.value
+ C - H      0.0839 0.0824 1506  1.018  0.7388 
+ C - HxN    0.0491 0.0823 1506  0.597  0.9329 
+ C - N      0.0721 0.0735 1506  0.981  0.7604 
+ H - HxN   -0.0347 0.0733 1506 -0.474  0.9648 
+ H - N     -0.0118 0.0739 1506 -0.159  0.9986 
+ HxN - N    0.0230 0.0729 1506  0.315  0.9891 
+
+P value adjustment: tukey method for comparing a family of 4 estimates 
+
+######one-way ANOVA August 2018
+Data = read.csv("August_2018_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+> Data = read.csv("August_2018_new.csv", header=TRUE)
+> 
+> headTail(Data)
+             Filename  RRT Group  Class       MF Treatment    ID Year  Month                  VOC ER_final log_10 Plot
+1     22.19_c_AUG.CDF 1.76   oMT    oMT                  C  19_c 2018 August                  omt        0   5.21   19
+2       8.5_h_AUG.CDF 1.85    ST     ST   C15H24         H   5_h 2018 August           a-humulene        0   5.75    5
+3     20.12_c_AUG.CDF 1.64   oMT    oMT                  C  12_c 2018 August                  omt        0   5.82   12
+4     20.12_c_AUG.CDF 1.47   oMT    oMT  C10H16O         C  12_c 2018 August                  omt        0   6.05   12
+...              <NA>  ...  <NA>   <NA>     <NA>      <NA>  <NA>  ...   <NA>                 <NA>      ...    ...  ...
+1153  5.3_hxn_AUG.CDF  2.7  OVOC    oBz C24H38O4       HxN 3_hxn 2018 August diisooctyl phthalate    37.38  11.57    3
+1154 12.7_hxn_AUG.CDF  2.7  OVOC    oBz C24H38O4       HxN 7_hxn 2018 August diisooctyl phthalate    37.78  11.58    7
+1155  18.11_n_AUG.CDF  2.7  OVOC    oBz C24H38O4         N  11_n 2018 August diisooctyl phthalate    45.44  11.66   11
+1156  7.4_hxn_AUG.CDF 0.59    HC alkane    C8H18       HxN 4_hxn 2018 August               octane    78.11  11.89    4
+     sampling
+1         two
+2         two
+3         two
+4         two
+...      <NA>
+1153      two
+1154      two
+1155      two
+1156      two
+> str(Data)
+'data.frame':	1156 obs. of  14 variables:
+ $ Filename : chr  "22.19_c_AUG.CDF" "8.5_h_AUG.CDF" "20.12_c_AUG.CDF" "20.12_c_AUG.CDF" ...
+ $ RRT      : num  1.76 1.85 1.64 1.47 1.76 ...
+ $ Group    : chr  "oMT" "ST" "oMT" "oMT" ...
+ $ Class    : chr  "oMT" "ST" "oMT" "oMT" ...
+ $ MF       : chr  "" "C15H24" "" "C10H16O" ...
+ $ Treatment: chr  "C" "H" "C" "C" ...
+ $ ID       : chr  "19_c" "5_h" "12_c" "12_c" ...
+ $ Year     : int  2018 2018 2018 2018 2018 2018 2018 2018 2018 2018 ...
+ $ Month    : chr  "August" "August" "August" "August" ...
+ $ VOC      : chr  "omt" "a-humulene" "omt" "omt" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.21 5.75 5.82 6.05 6.27 6.45 6.49 6.5 6.52 6.7 ...
+ $ Plot     : int  19 5 12 12 9 12 5 4 11 8 ...
+ $ sampling : chr  "two" "two" "two" "two" ...
+> summary(Data)   
+   Filename              RRT           Group              Class                MF             Treatment        
+ Length:1156        Min.   :0.228   Length:1156        Length:1156        Length:1156        Length:1156       
+ Class :character   1st Qu.:0.628   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :1.133   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :1.228                                                                              
+                    3rd Qu.:1.709                                                                              
+                    Max.   :2.704                                                                              
+      ID                 Year         Month               VOC               ER_final          log_10      
+ Length:1156        Min.   :2018   Length:1156        Length:1156        Min.   : 0.000   Min.   : 5.210  
+ Class :character   1st Qu.:2018   Class :character   Class :character   1st Qu.: 0.040   1st Qu.: 8.550  
+ Mode  :character   Median :2018   Mode  :character   Mode  :character   Median : 0.270   Median : 9.430  
+                    Mean   :2018                                         Mean   : 1.334   Mean   : 9.289  
+                    3rd Qu.:2018                                         3rd Qu.: 1.180   3rd Qu.:10.070  
+                    Max.   :2018                                         Max.   :78.110   Max.   :11.890  
+      Plot          sampling        
+ Min.   : 1.000   Length:1156       
+ 1st Qu.: 4.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 7.166                     
+ 3rd Qu.: 9.000                     
+ Max.   :19.000                     
+> 
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot), 
+    data = Data)
+
+Grand Mean: 9.288625
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        2.187297
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          8.7928 1172.2233
+Deg. of Freedom              3      1151
+
+Residual standard error: 1.009177
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1  2.187   2.187
+
+Error: Within
+                 Df Sum Sq Mean Sq F value Pr(>F)  
+Data$Treatment    3    8.8   2.931   2.878  0.035 *
+Residuals      1151 1172.2   1.018                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           9.11 NaN NaN       NaN       NaN
+ H           9.34 NaN NaN       NaN       NaN
+ HxN         9.39 NaN NaN       NaN       NaN
+ N           9.31 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE   df t.ratio p.value
+ C - H     -0.2329 0.0973 1151 -2.394  0.0788 
+ C - HxN   -0.2779 0.0985 1151 -2.823  0.0250 
+ C - N     -0.1964 0.0912 1151 -2.154  0.1370 
+ H - HxN   -0.0450 0.0799 1151 -0.563  0.9428 
+ H - N      0.0365 0.0868 1151  0.420  0.9750 
+ HxN - N    0.0815 0.0872 1151  0.935  0.7862 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+
+######one-way ANOVA June 2018
+Data = read.csv("June_2018_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+> Data = read.csv("June_2018_new.csv", header=TRUE)
+> 
+> headTail(Data)
+            Filename  RRT Group    Class       MF Treatment    ID Year Month                                   VOC
+1      6.6_n_JUN.CDF 1.44   GLV    ester C11H22O2         N   6_n 2018  June butanoic acid, 2-methyl-, hexyl ester
+2      2.2_h_JUN.CDF 1.44   GLV    ester C11H22O2         H   2_h 2018  June butanoic acid, 2-methyl-, hexyl ester
+3      1.1_c_JUN.CDF 1.94    ST       ST   C15H24         C   1_c 2018  June                          a-bisabolene
+4      9.9_n_JUN.CDF 1.44   GLV    ester C11H22O2         N   9_n 2018  June butanoic acid, 2-methyl-, hexyl ester
+...             <NA>  ...  <NA>     <NA>     <NA>      <NA>  <NA>  ...  <NA>                                  <NA>
+1113 4.4_hxn_JUN.CDF  1.2  OVOC aldehyde   C9H18O       HxN 4_hxn 2018  June                               nonanal
+1114 4.4_hxn_JUN.CDF 0.96  OVOC   ketone   C8H14O       HxN 4_hxn 2018  June               6-methyl-5-hepten-2-one
+1115 4.4_hxn_JUN.CDF 0.94  OVOC  alcohol   C8H16O       HxN 4_hxn 2018  June                          1-octen-3-ol
+1116 11.12_c_JUN.CDF 1.06    MT       MT   C10H16         C  12_c 2018  June                            d-limonene
+     ER_final log_10 Plot sampling
+1           0   5.49    6      one
+2           0   5.99    2      one
+3           0   6.34    1      one
+4           0   6.41    9      one
+...       ...    ...  ...     <NA>
+1113    48.98  11.69    4      one
+1114    49.06  11.69    4      one
+1115    53.22  11.73    4      one
+1116    72.54  11.86   12      one
+> str(Data)
+'data.frame':	1116 obs. of  14 variables:
+ $ Filename : chr  "6.6_n_JUN.CDF" "2.2_h_JUN.CDF" "1.1_c_JUN.CDF" "9.9_n_JUN.CDF" ...
+ $ RRT      : num  1.44 1.44 1.94 1.44 1.22 ...
+ $ Group    : chr  "GLV" "GLV" "ST" "GLV" ...
+ $ Class    : chr  "ester" "ester" "ST" "ester" ...
+ $ MF       : chr  "C11H22O2" "C11H22O2" "C15H24" "C11H22O2" ...
+ $ Treatment: chr  "N" "H" "C" "N" ...
+ $ ID       : chr  "6_n" "2_h" "1_c" "9_n" ...
+ $ Year     : int  2018 2018 2018 2018 2018 2018 2018 2018 2018 2018 ...
+ $ Month    : chr  "June" "June" "June" "June" ...
+ $ VOC      : chr  "butanoic acid, 2-methyl-, hexyl ester" "butanoic acid, 2-methyl-, hexyl ester" "a-bisabolene" "butanoic acid, 2-methyl-, hexyl ester" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.49 5.99 6.34 6.41 6.43 6.49 6.54 6.59 6.65 6.73 ...
+ $ Plot     : int  6 2 1 9 5 5 1 9 19 7 ...
+ $ sampling : chr  "one" "one" "one" "one" ...
+> summary(Data)   
+   Filename              RRT           Group              Class                MF             Treatment        
+ Length:1116        Min.   :0.228   Length:1116        Length:1116        Length:1116        Length:1116       
+ Class :character   1st Qu.:0.735   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :1.133   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :1.229                                                                              
+                    3rd Qu.:1.671                                                                              
+                    Max.   :2.652                                                                              
+      ID                 Year         Month               VOC               ER_final          log_10      
+ Length:1116        Min.   :2018   Length:1116        Length:1116        Min.   : 0.000   Min.   : 5.490  
+ Class :character   1st Qu.:2018   Class :character   Class :character   1st Qu.: 0.040   1st Qu.: 8.590  
+ Mode  :character   Median :2018   Mode  :character   Mode  :character   Median : 0.170   Median : 9.230  
+                    Mean   :2018                                         Mean   : 1.258   Mean   : 9.214  
+                    3rd Qu.:2018                                         3rd Qu.: 0.780   3rd Qu.: 9.890  
+                    Max.   :2018                                         Max.   :72.540   Max.   :11.860  
+      Plot          sampling        
+ Min.   : 1.000   Length:1116       
+ 1st Qu.: 3.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 6.701                     
+ 3rd Qu.: 9.000                     
+ Max.   :19.000                     
+> 
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot), 
+    data = Data)
+
+Grand Mean: 9.213772
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        0.875058
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          4.5575 1006.0785
+Deg. of Freedom              3      1111
+
+Residual standard error: 0.9516098
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1 0.8751  0.8751
+
+Error: Within
+                 Df Sum Sq Mean Sq F value Pr(>F)
+Data$Treatment    3    4.6  1.5192   1.678   0.17
+Residuals      1111 1006.1  0.9056               
+> 
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           9.22 NaN NaN       NaN       NaN
+ H           9.10 NaN NaN       NaN       NaN
+ HxN         9.29 NaN NaN       NaN       NaN
+ N           9.24 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE   df t.ratio p.value
+ C - H      0.1194 0.0978 1111  1.221  0.6137 
+ C - HxN   -0.0679 0.0844 1111 -0.805  0.8522 
+ C - N     -0.0136 0.0830 1111 -0.164  0.9984 
+ H - HxN   -0.1873 0.0841 1111 -2.228  0.1164 
+ H - N     -0.1329 0.0927 1111 -1.435  0.4777 
+ HxN - N    0.0544 0.0820 1111  0.663  0.9109 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######one-way ANOVA October 2018
+Data = read.csv("October_2018_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+> Data = read.csv("October_2018_new.csv", header=TRUE)
+> 
+> headTail(Data)
+             Filename  RRT Group  Class       MF Treatment    ID Year   Month                   VOC ER_final log_10 Plot
+1       2.1_c_OCT.CDF 1.47   oMT    oMT  C10H16O         C   1_c 2018 October                   omt        0   5.75    1
+2    13.7_hxn_OCT.CDF    1   GLV  ester  C8H14O2       HxN 7_hxn 2018 October cis-3-hexenyl acetate        0   6.19    7
+3       2.1_c_OCT.CDF 1.02  OVOC   ovoc   C9H18O         C   1_c 2018 October   methoxy-cyclooctane        0   6.23    1
+4     23.19_c_OCT.CDF 0.91    HC alkane                  C  19_c 2018 October                alkane        0   6.44   19
+...              <NA>  ...  <NA>   <NA>     <NA>      <NA>  <NA>  ...    <NA>                  <NA>      ...    ...  ...
+1244    4.2_h_OCT.CDF  2.7  OVOC    oBz C24H38O4         H   2_h 2018 October  diisooctyl phthalate    20.84  11.32    2
+1245   17.9_n_OCT.CDF  2.7  OVOC    oBz C24H38O4         N   9_n 2018 October  diisooctyl phthalate    24.44  11.39    9
+1246  6.3_hxn_OCT.CDF  2.7  OVOC    oBz C24H38O4       HxN 3_hxn 2018 October  diisooctyl phthalate    25.34   11.4    3
+1247   11.6_n_OCT.CDF  2.7  OVOC    oBz C24H38O4         N   6_n 2018 October  diisooctyl phthalate    47.89  11.68    6
+     sampling
+1       three
+2       three
+3       three
+4       three
+...      <NA>
+1244    three
+1245    three
+1246    three
+1247    three
+> str(Data)
+'data.frame':	1247 obs. of  14 variables:
+ $ Filename : chr  "2.1_c_OCT.CDF" "13.7_hxn_OCT.CDF" "2.1_c_OCT.CDF" "23.19_c_OCT.CDF" ...
+ $ RRT      : num  1.47 1 1.023 0.911 2.039 ...
+ $ Group    : chr  "oMT" "GLV" "OVOC" "HC" ...
+ $ Class    : chr  "oMT" "ester" "ovoc" "alkane" ...
+ $ MF       : chr  "C10H16O" "C8H14O2" "C9H18O" "" ...
+ $ Treatment: chr  "C" "HxN" "C" "C" ...
+ $ ID       : chr  "1_c" "7_hxn" "1_c" "19_c" ...
+ $ Year     : int  2018 2018 2018 2018 2018 2018 2018 2018 2018 2018 ...
+ $ Month    : chr  "October" "October" "October" "October" ...
+ $ VOC      : chr  "omt" "cis-3-hexenyl acetate" "methoxy-cyclooctane" "alkane" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.75 6.19 6.23 6.44 6.5 6.52 6.56 6.57 6.58 6.65 ...
+ $ Plot     : int  1 7 1 19 19 5 12 12 19 11 ...
+ $ sampling : chr  "three" "three" "three" "three" ...
+> summary(Data)   
+   Filename              RRT           Group              Class                MF             Treatment        
+ Length:1247        Min.   :0.228   Length:1247        Length:1247        Length:1247        Length:1247       
+ Class :character   1st Qu.:0.587   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :1.093   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :1.214                                                                              
+                    3rd Qu.:1.681                                                                              
+                    Max.   :2.704                                                                              
+      ID                 Year         Month               VOC               ER_final          log_10      
+ Length:1247        Min.   :2018   Length:1247        Length:1247        Min.   : 0.000   Min.   : 5.750  
+ Class :character   1st Qu.:2018   Class :character   Class :character   1st Qu.: 0.030   1st Qu.: 8.540  
+ Mode  :character   Median :2018   Mode  :character   Mode  :character   Median : 0.230   Median : 9.360  
+                    Mean   :2018                                         Mean   : 1.069   Mean   : 9.242  
+                    3rd Qu.:2018                                         3rd Qu.: 0.950   3rd Qu.: 9.980  
+                    Max.   :2018                                         Max.   :47.890   Max.   :11.680  
+      Plot          sampling        
+ Min.   : 1.000   Length:1247       
+ 1st Qu.: 3.000   Class :character  
+ Median : 7.000   Mode  :character  
+ Mean   : 7.472                     
+ 3rd Qu.:11.000                     
+ Max.   :19.000                     
+> 
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot), 
+    data = Data)
+
+Grand Mean: 9.242085
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        3.311646
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares         27.1315 1148.3640
+Deg. of Freedom              3      1242
+
+Residual standard error: 0.9615658
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1  3.312   3.312
+
+Error: Within
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+Data$Treatment    3   27.1   9.044   9.781 2.22e-06 ***
+Residuals      1242 1148.4   0.925                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           8.96 NaN NaN       NaN       NaN
+ H           9.28 NaN NaN       NaN       NaN
+ HxN         9.37 NaN NaN       NaN       NaN
+ N           9.35 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE   df t.ratio p.value
+ C - H     -0.3197 0.0859 1242 -3.721  0.0012 
+ C - HxN   -0.4104 0.0933 1242 -4.400  0.0001 
+ C - N     -0.3867 0.0772 1242 -5.007  <.0001 
+ H - HxN   -0.0907 0.0806 1242 -1.125  0.6740 
+ H - N     -0.0670 0.0757 1242 -0.886  0.8122 
+ HxN - N    0.0237 0.0838 1242  0.282  0.9922 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######one-way ANOVA August 2019 (aka September 2019) 
+Data = read.csv("September_2019_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+> Data = read.csv("September_2019_new.csv", header=TRUE)
+> 
+> headTail(Data)
+                       Filename  RRT Group Class      MF Treatment    ID Year  Month                             VOC
+1     10.2386_191101_48_9_n.CDF 1.36  OVOC   oBz C10H14O         N   9_n 2019 August a,a,4-trimethyl-benzenemethanol
+2     10.2386_191101_48_9_n.CDF 0.35  OVOC furan  C5H10O         N   9_n 2019 August                           furan
+3    11.2387_191101_49_11_n.CDF 1.51 OTHER nitro   C8H7N         N  11_n 2019 August                          indole
+4     10.2386_191101_48_9_n.CDF 0.77  OVOC  acid  C6H8O2         N   9_n 2019 August                     sorbic acid
+...                        <NA>  ...  <NA>  <NA>    <NA>      <NA>  <NA>  ...   <NA>                            <NA>
+596 48.2556_191108_42_3_hxn.CDF  0.9    MT    MT  C10H16       HxN 3_hxn 2019 August                        camphene
+597    6.2382_191101_44_5_h.CDF 1.86    ST    ST  C15H24         H   5_h 2019 August              trans-y-bisabolene
+598    3.2378_191101_40_1_c.CDF 1.86    ST    ST  C15H24         C   1_c 2019 August              trans-y-bisabolene
+599 48.2556_191108_42_3_hxn.CDF 2.25  OVOC  ovoc               HxN 3_hxn 2019 August                            ovoc
+    ER_final log_10 Plot sampling
+1          0   6.08    9     four
+2          0   6.86    9     four
+3          0   7.48   11     four
+4          0    7.6    9     four
+...      ...    ...  ...     <NA>
+596     5.41  10.73    3     four
+597     6.14  10.79    5     four
+598    16.66  11.22    1     four
+599    31.36   11.5    3     four
+> str(Data)
+'data.frame':	599 obs. of  14 variables:
+ $ Filename : chr  "10.2386_191101_48_9_n.CDF" "10.2386_191101_48_9_n.CDF" "11.2387_191101_49_11_n.CDF" "10.2386_191101_48_9_n.CDF" ...
+ $ RRT      : num  1.362 0.352 1.507 0.77 0.339 ...
+ $ Group    : chr  "OVOC" "OVOC" "OTHER" "OVOC" ...
+ $ Class    : chr  "oBz" "furan" "nitro" "acid" ...
+ $ MF       : chr  "C10H14O" "C5H10O" "C8H7N" "C6H8O2" ...
+ $ Treatment: chr  "N" "N" "N" "N" ...
+ $ ID       : chr  "9_n" "9_n" "11_n" "9_n" ...
+ $ Year     : int  2019 2019 2019 2019 2019 2019 2019 2019 2019 2019 ...
+ $ Month    : chr  "August" "August" "August" "August" ...
+ $ VOC      : chr  "a,a,4-trimethyl-benzenemethanol" "furan" "indole" "sorbic acid" ...
+ $ ER_final : num  0 0 0 0 0 0.01 0.01 0.01 0.01 0.01 ...
+ $ log_10   : num  6.08 6.86 7.48 7.6 7.64 7.79 7.86 7.89 8.08 8.09 ...
+ $ Plot     : int  9 9 11 9 9 11 9 11 9 9 ...
+ $ sampling : chr  "four" "four" "four" "four" ...
+> summary(Data)   
+   Filename              RRT            Group              Class                MF             Treatment        
+ Length:599         Min.   :0.2280   Length:599         Length:599         Length:599         Length:599        
+ Class :character   1st Qu.:0.4660   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :0.7700   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :0.8115                                                                              
+                    3rd Qu.:0.9775                                                                              
+                    Max.   :2.3600                                                                              
+      ID                 Year         Month               VOC               ER_final           log_10      
+ Length:599         Min.   :2019   Length:599         Length:599         Min.   : 0.0000   Min.   : 5.660  
+ Class :character   1st Qu.:2019   Class :character   Class :character   1st Qu.: 0.0300   1st Qu.: 8.430  
+ Mode  :character   Median :2019   Mode  :character   Mode  :character   Median : 0.1100   Median : 9.050  
+                    Mean   :2019                                         Mean   : 0.4289   Mean   : 8.903  
+                    3rd Qu.:2019                                         3rd Qu.: 0.3100   3rd Qu.: 9.485  
+                    Max.   :2019                                         Max.   :31.3600   Max.   :11.500  
+      Plot          sampling        
+ Min.   : 1.000   Length:599        
+ 1st Qu.: 3.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 5.943                     
+ 3rd Qu.: 8.000                     
+ Max.   :12.000                     
+> 
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot), 
+    data = Data)
+
+Grand Mean: 8.903005
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares    0.0002740835
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          7.2828  482.4361
+Deg. of Freedom              3       594
+
+Residual standard error: 0.9012114
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df    Sum Sq   Mean Sq
+Data$Treatment  1 0.0002741 0.0002741
+
+Error: Within
+                Df Sum Sq Mean Sq F value Pr(>F)  
+Data$Treatment   3    7.3  2.4276   2.989 0.0305 *
+Residuals      594  482.4  0.8122                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           8.87 NaN NaN       NaN       NaN
+ H           8.82 NaN NaN       NaN       NaN
+ HxN         9.09 NaN NaN       NaN       NaN
+ N           8.83 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE  df t.ratio p.value
+ C - H      0.0566 0.1086 594  0.522  0.9539 
+ C - HxN   -0.2124 0.1105 594 -1.923  0.2195 
+ C - N      0.0421 0.1123 594  0.375  0.9820 
+ H - HxN   -0.2690 0.0984 594 -2.733  0.0326 
+ H - N     -0.0145 0.1078 594 -0.135  0.9991 
+ HxN - N    0.2545 0.1100 594  2.314  0.0960 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######one-way ANOVA October 2019 
+Data = read.csv("October_2019_new.csv", header=TRUE)
+
+headTail(Data)
+str(Data)
+summary(Data)   
+
+Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+Data.aov
+summary(Data.aov)
+
+lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+
+> Data = read.csv("October_2019_new.csv", header=TRUE)
+> 
+> headTail(Data)
+                       Filename  RRT Group Class     MF Treatment    ID Year   Month                VOC ER_final log_10
+1     18.2395_191101_57_5_h.CDF 1.03    MT    MT C10H16         H   5_h 2019 October                 mt        0    5.5
+2   17.2394_191101_56_4_hxn.CDF 1.03    MT    MT C10H16       HxN 4_hxn 2019 October                 mt        0   5.82
+3     47.2554_191108_60_8_h.CDF 0.35  OVOC furan C5H10O         H   8_h 2019 October              furan        0   6.09
+4   20.2397_191101_59_7_hxn.CDF 1.83    ST    ST C15H22       HxN 7_hxn 2019 October                 st        0   6.48
+...                        <NA>  ...  <NA>  <NA>   <NA>      <NA>  <NA>  ...    <NA>               <NA>      ...    ...
+910  24.2404_191101_62_11_n.CDF 2.25  OVOC  ovoc                N  11_n 2019 October               ovoc    20.82  11.32
+911   18.2395_191101_57_5_h.CDF 1.86    ST    ST C15H24         H   5_h 2019 October trans-y-bisabolene    24.76  11.39
+912   15.2392_191101_54_2_h.CDF 1.86    ST    ST C15H24         H   2_h 2019 October trans-y-bisabolene    40.73  11.61
+913 16.2393_191101_55_3_hxn.CDF 1.86    ST    ST C15H24       HxN 3_hxn 2019 October trans-y-bisabolene    52.09  11.72
+    Plot sampling
+1      5     five
+2      4     five
+3      8     five
+4      7     five
+...  ...     <NA>
+910   11     five
+911    5     five
+912    2     five
+913    3     five
+> str(Data)
+'data.frame':	913 obs. of  14 variables:
+ $ Filename : chr  "18.2395_191101_57_5_h.CDF" "17.2394_191101_56_4_hxn.CDF" "47.2554_191108_60_8_h.CDF" "20.2397_191101_59_7_hxn.CDF" ...
+ $ RRT      : num  1.034 1.034 0.352 1.835 1.034 ...
+ $ Group    : chr  "MT" "MT" "OVOC" "ST" ...
+ $ Class    : chr  "MT" "MT" "furan" "ST" ...
+ $ MF       : chr  "C10H16" "C10H16" "C5H10O" "C15H22" ...
+ $ Treatment: chr  "H" "HxN" "H" "HxN" ...
+ $ ID       : chr  "5_h" "4_hxn" "8_h" "7_hxn" ...
+ $ Year     : int  2019 2019 2019 2019 2019 2019 2019 2019 2019 2019 ...
+ $ Month    : chr  "October" "October" "October" "October" ...
+ $ VOC      : chr  "mt" "mt" "furan" "st" ...
+ $ ER_final : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ log_10   : num  5.5 5.82 6.09 6.48 6.49 6.55 6.55 6.58 6.58 6.59 ...
+ $ Plot     : int  5 4 8 7 19 6 5 2 8 7 ...
+ $ sampling : chr  "five" "five" "five" "five" ...
+> summary(Data)   
+   Filename              RRT            Group              Class                MF             Treatment        
+ Length:913         Min.   :0.2280   Length:913         Length:913         Length:913         Length:913        
+ Class :character   1st Qu.:0.4660   Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Median :0.7810   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                    Mean   :0.9362                                                                              
+                    3rd Qu.:1.1860                                                                              
+                    Max.   :2.3600                                                                              
+      ID                 Year         Month               VOC               ER_final          log_10      
+ Length:913         Min.   :2019   Length:913         Length:913         Min.   : 0.000   Min.   : 5.500  
+ Class :character   1st Qu.:2019   Class :character   Class :character   1st Qu.: 0.030   1st Qu.: 8.530  
+ Mode  :character   Median :2019   Mode  :character   Mode  :character   Median : 0.220   Median : 9.350  
+                    Mean   :2019                                         Mean   : 1.314   Mean   : 9.216  
+                    3rd Qu.:2019                                         3rd Qu.: 1.060   3rd Qu.:10.020  
+                    Max.   :2019                                         Max.   :52.090   Max.   :11.720  
+      Plot          sampling        
+ Min.   : 1.000   Length:913        
+ 1st Qu.: 4.000   Class :character  
+ Median : 6.000   Mode  :character  
+ Mean   : 7.146                     
+ 3rd Qu.: 9.000                     
+ Max.   :19.000                     
+> 
+> Data.aov <- aov(Data$log_10 ~ Data$Treatment + Error(Data$Plot), data = Data)
+> Data.aov
+
+Call:
+aov(formula = Data$log_10 ~ Data$Treatment + Error(Data$Plot), 
+    data = Data)
+
+Grand Mean: 9.216232
+
+Stratum 1: Data$Plot
+
+Terms:
+                Data$Treatment
+Sum of Squares        30.22155
+Deg. of Freedom              1
+
+2 out of 3 effects not estimable
+Estimated effects are balanced
+
+Stratum 2: Within
+
+Terms:
+                Data$Treatment Residuals
+Sum of Squares          7.0703  962.0718
+Deg. of Freedom              3       908
+
+Residual standard error: 1.029345
+Estimated effects may be unbalanced
+> summary(Data.aov)
+
+Error: Data$Plot
+               Df Sum Sq Mean Sq
+Data$Treatment  1  30.22   30.22
+
+Error: Within
+                Df Sum Sq Mean Sq F value Pr(>F)  
+Data$Treatment   3    7.1   2.357   2.224 0.0838 .
+Residuals      908  962.1   1.060                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> lsmeans(Data.aov, pairwise~Treatment, adjust="tukey")
+Note: re-fitting model with sum-to-zero contrasts
+NOTE: Results are based on intra-block estimates and are biased.
+$lsmeans
+ Treatment lsmean  SE  df asymp.LCL asymp.UCL
+ C           9.37 NaN NaN       NaN       NaN
+ H           9.22 NaN NaN       NaN       NaN
+ HxN         9.09 NaN NaN       NaN       NaN
+ N           9.18 NaN NaN       NaN       NaN
+
+Warning: EMMs are biased unless design is perfectly balanced 
+Confidence level used: 0.95 
+
+$contrasts
+ contrast estimate     SE  df t.ratio p.value
+ C - H      0.1491 0.1178 908  1.265  0.5855 
+ C - HxN    0.2820 0.1155 908  2.441  0.0702 
+ C - N      0.1926 0.0968 908  1.991  0.1922 
+ H - HxN    0.1330 0.1030 908  1.291  0.5689 
+ H - N      0.0435 0.0997 908  0.437  0.9721 
+ HxN - N   -0.0894 0.0961 908 -0.931  0.7883 
+
+P value adjustment: tukey method for comparing a family of 4 estimates
+
+######Plot emission rates per year per month divided by classes
+
+######################################################################################
+#
+#  Merging of Adriana's 2018 and 2019 datasets
+#
+#  Prepared by Cleo Davie-Martin
+#  2020-10-26, KU
+#  Last updated: 2020-10-27
+#
+#######################################################################################
+
+# Initiate libraries we will need for the analysis
+library(tidyverse); library(reshape2)
+
+# Set working directory (where documents are stored)
+#setwd("C:/Users/bhc928/Desktop/Adriana")
+
+# Read in 2018 and 2019 data files for merging
+df_2018 <- read.table("2018_Data.txt", header=TRUE, sep="\t")
+df_2019 <- read.table("2019_Data.txt", header=TRUE, sep="\t")
+
+#####################EXCLUDED TWO SAMPLES
+# Merge 2018 and 2019 data files (ignore "Year" column) and remove all compounds that should be excluded
+# Note: here, I also exclude one sample (11-n-JUN), which exhibited overloaded peaks and dominates the results
+df_merge <- full_join(df_2018[,-45], df_2019[,-7]) %>% filter(Exclude!="Y") %>% select(-Exclude, -"X10.11_n_JUN.CDF", -"X8.8_h_JUN.CDF"  ) 
+
+View(df_merge)
+
+# Test for duplicates (labelling errors between datasets)
+df_merge %>% group_by(VOC) %>% filter(n()>1) %>% summarize(n=n())
+
+# Convert files to long format for merging with sample information
+df_melt <- melt(df_merge, id.vars=c("RRT","Group","Class","MF","VOC"), variable.name="Filename", value.name="Mass_ng")
+
+# Load in sample information to bind with the data for plotting
+df_info <- read.table("Sample_information_ALL.txt", header=TRUE, sep="\t")
+
+# Revise Filenames so they are consistent for merging
+df_melt$Filename <- gsub("X", "", df_melt$Filename, fixed=TRUE) # Remove "X" from start of filename
+df_info$Filename <- gsub("-", ".", df_info$Filename, fixed=TRUE) # Replace - with .
+
+# Merge sample information and data
+df_final <- merge(df_melt, df_info, by="Filename", sort=TRUE)
+
+#######################################################################################
+
+# Calculate BVOC concentrations (ug L-1) = mVOC/(t*Q) and emission rates (ug m-2 h-1)
+# mVOC we know, t = 10 min = 0.167 h, Q = 200 mL/min = 12 L/h
+# SA = 317.8 cm2 = 0.03178 m2, tave = 5 min = 0.083 h
+
+df_final <- df_final %>% mutate(Conc_ug_L=(Mass_ng/1000)/(0.167*12),
+                                ER_ug_m2_h=(Conc_ug_L/0.083)*((V_total_cm3/1000)/0.03178))
+
+#######################################################################################
+
+# Blank subtraction
+# First, separate samples from blanks
+blanks <- df_final %>% filter(Treatment=="blank") %>% select(Site, Year, Month, VOC, RRT, Conc_blank=Conc_ug_L, ER_blank=ER_ug_m2_h)
+samples <- df_final %>% filter(Treatment!="blank")
+
+# Merge based on Year, Month, VOC, and RRT and remove duplicates
+merge <- left_join(samples, blanks) %>% distinct()
+
+# Calculate blank-subtracted emission rates (accounts for the difference in total volume)
+merge <- merge %>% mutate(ER_final=ER_ug_m2_h-ER_blank)
+
+# Convert negative values to 0
+indx=which(merge$ER_final<0); merge$ER_final[indx] <- 0
+
+# Export merged dataset
+write.csv(merge, "20201026_Merged 2018_2019 dataset.csv", row.names=FALSE) ##modified manually changed September 2019 to August 2019
+
+#######################################################################################
+
+# Summarise emission rates by sample and group (summed emission rates)
+merge$Year <- as.character(merge$Year)
+total_sum <- merge %>% group_by(Site, Year, Month, Treatment, Sample) %>% summarise(N=sum(is.na(ER_final)), Total_ER=sum(ER_final, na.rm=TRUE))
+
+class_sum <- merge %>% group_by(Site, Year, Month, Treatment, Sample, Class) %>% summarise(n=sum(is.na(ER_final)), Class_ER=sum(ER_final, na.rm=TRUE))
+
+sample_summary <- merge(total_sum, class_sum) %>% mutate(Percent=Class_ER/Total_ER*100)
+
+# Summarise emission rates by treatment (averaged emission rates)
+total_ave <- total_sum %>% group_by(Site, Year, Month, Treatment) %>% summarise(n=n(), N_ave=mean(N, na.rm=TRUE), Total_ER_ave=mean(Total_ER, na.rm=TRUE), Total_ER_sd=sd(Total_ER, na.rm=TRUE), Total_ER_se=Total_ER_sd/sqrt(n))
+class_ave <- sample_summary %>% group_by(Site, Year, Month, Treatment, Class) %>% summarise(n_group=n(), n_ave=mean(n, na.rm=TRUE), Class_ER_ave=mean(Class_ER, na.rm=TRUE), Class_ER_sd=sd(Class_ER, na.rm=TRUE), Class_ER_se=Class_ER_sd/sqrt(n_group), Percent_ave=mean(Percent, na.rm=TRUE),Percent_sd=sd(Percent, na.rm=TRUE), Percent_se=Percent_sd/sqrt(n_group))
+treatment_summary <- merge(total_ave, class_ave)
+
+View(treatment_summary)
+
+# Create a revised treatment column for ease of plotting
+treatment_summary <- treatment_summary %>% mutate(Treatment2=ifelse(Treatment=="control", "C", ifelse(Treatment=="heated", "H", ifelse(Treatment=="nitrogen", "N",ifelse(Treatment=="heated_nitrogen", "HxN", "N50")))))
+
+# Export treatment summary data
+write.csv(treatment_summary, "20201027_Merged 2018_2019 treatment summary.csv", row.names=FALSE)
+
+#######################################################################################
+
+# Plot summarized data for quick overview
+
+Input = ("
+Site	Year	Month	Treatment	n	N_ave	Total_ER_ave	Total_ER_sd	Total_ER_se	Class	n_group	n_ave	Class_ER_ave	Class_ER_sd	Class_ER_se	Percent_ave	Percent_sd	Percent_se	Treatment2
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	MT	3	1	31.60784791	50.12633897	28.9404553	14.83873468	19.52448004	11.27246381	C
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	alkane	3	29	50.53874736	47.19766376	27.24958388	26.79458711	17.14707108	9.899866102	HxN
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	aldehyde	3	4	46.26965973	42.23371994	24.38364957	30.32453742	8.118936458	4.68747015	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	Bz	2	5	47.95370773	32.83462175	23.2175837	31.09440913	21.89230944	15.48020046	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	alcohol	3	0	22.8385044	36.27029651	20.94066545	7.952905132	10.00104374	5.774105297	HxN
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	aldehyde	3	4	25.70137995	36.20626124	20.90369467	32.28362846	28.79267847	16.62346067	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	alkane	3	22	31.31190079	34.12025511	19.69933847	17.66138702	3.561470637	2.056216031	HxN
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	Bz	2	5	34.26599696	26.75950058	18.92182432	34.22851141	13.22323263	9.350237464	H
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	ketone	3	4	19.81117855	28.86715072	16.66645724	8.138323355	6.783395602	3.916395277	HxN
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	ST	3	1	23.8001977	26.33028116	15.20179491	36.19710824	31.58352362	18.23475586	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	aldehyde	2	4	45.66111914	21.34018673	15.08979075	29.17689291	12.9697039	9.170965577	N
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	Bz	3	7	38.64158775	25.13424656	14.51126402	29.66868017	4.978047047	2.874076802	N
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	Bz	2	7	31.7822941	18.4948507	13.07783434	20.97358487	4.148474433	2.933414403	HxN
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	Bz	3	5	30.39710668	21.1975775	12.23842707	20.53207677	10.14536452	5.857428934	C
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	Bz	3	7	48.39319677	21.18398702	12.23058061	27.33729051	7.280627569	4.203472287	N
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	ST	3	1	21.89431411	20.53670696	11.85687329	30.15342654	26.10818227	15.07356606	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	ST	3	1	11.48382549	19.85048674	11.46068386	12.87129168	22.17032155	12.80004111	N
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	aldehyde	3	3	14.55069008	19.25057738	11.11432603	7.169094429	6.554233035	3.784088207	H
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	other	3	26	10.63346726	18.12106564	10.46220213	11.26892583	17.04495206	9.84090766	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	alkane	3	29	33.62174088	18.04330655	10.41730789	22.40357706	7.988327518	4.612063043	H
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	Bz	3	5	21.50878761	17.85420833	10.30813199	16.35643092	18.52244237	10.69393709	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	aldehyde	2	3	13.89725315	14.48348343	10.24136935	8.195037423	6.602952385	4.668992407	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	Bz	3	7	45.87660187	17.58918418	10.15512022	32.53642035	6.612619835	3.817797842	H
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	aldehyde	3	4	29.50710686	14.87395507	8.587481962	26.70913542	22.98785377	13.27204356	C
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	aldehyde	2	4	14.95761342	10.08160359	7.12877026	15.39474279	3.820424568	2.701448119	H
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	Bz	3	7	51.1009548	12.08742834	6.978680005	33.58126841	14.8239039	8.558584907	HxN
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	alkane	3	21	12.82146592	11.58636861	6.689393038	24.05939963	5.548985762	3.203708424	N
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	Bz	3	7	18.79609357	11.54048763	6.662903639	26.26081707	7.469145622	4.312313235	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	alkane	3	29	20.77477818	10.74476502	6.203492976	28.74020746	2.606956891	1.505127263	C
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	ketone	2	4	14.94763009	8.72207645	6.167439404	9.537128946	5.361789611	3.791357793	N
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	other	3	26	10.1344624	10.42073898	6.016416453	15.31401044	19.78900531	11.42518754	N
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	alkane	3	21	12.1023932	10.41888379	6.015345359	18.95947599	10.7426914	6.202295769	HxN
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	ST	3	6	6.118449	10.16150953	5.866750263	10.88852425	18.49876702	10.68026812	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	alkane	3	29	37.33879552	9.869470322	5.698141347	28.69381338	2.733246425	1.578040559	H
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	Bz	3	7	25.73545763	9.67195884	5.58410804	20.01187287	5.914757436	3.414886798	H
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	alkane	3	22	16.92435226	9.273978291	5.354333863	13.44488527	8.127118098	4.692193822	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	alkane	3	21	7.359117382	9.214136856	5.319784394	20.7639037	4.730563839	2.731192306	HxN
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	ST	3	1	6.105679812	9.183747966	5.30223936	26.46072416	37.37965559	21.58115422	C
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	alkane	3	29	20.40488589	9.170140177	5.294382899	16.75981409	0.775041758	0.447470567	N
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	MT	2	1	6.307945961	7.432829909	5.255804432	9.805472448	12.64789735	8.943413984	H
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	alkane	3	21	10.81134106	8.605636695	4.968466663	20.92368834	14.43337284	8.333111696	H
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	furan	3	5	8.494034714	8.586867687	4.957630371	4.87952427	4.277912327	2.469853833	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	aldehyde	3	3	15.09053385	8.534751185	4.927540894	10.95439084	4.499036002	2.597519647	H
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	alkane	3	21	11.1006204	8.410598596	4.855861363	36.49569698	11.31265018	6.531361624	C
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	other	3	10	10.08709438	8.046423426	4.645604731	7.657385297	2.760964774	1.594043756	N
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	ester	3	8	6.581496963	7.79200603	4.498716779	4.494893132	3.5156288	2.029749234	N
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	isoprene	3	0	6.980138345	7.749415311	4.474127016	3.631689656	2.548336455	1.471282738	H
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	alcohol	3	1	12.37257649	7.703481441	4.447607083	8.988323015	4.27245928	2.466705515	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	Bz	3	4	4.740327271	7.157537564	4.132406239	5.296233641	6.228779967	3.596187791	HxN
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	Bz	3	4	6.842799104	7.09858075	4.098367507	13.1187216	11.70231244	6.756333235	H
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	Bz	3	3	7.644439535	6.883310995	3.974081456	5.270484378	6.026142744	3.479195135	C
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	other	3	26	8.043537745	6.839114678	3.9485647	17.24445593	17.81329109	10.28450841	N
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	aldehyde	3	4	6.140787051	6.649545122	3.839116666	16.82194983	19.06323385	11.00616319	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	ester	3	8	6.034257936	6.542927137	3.777560744	3.304722925	1.864251051	1.076325846	H
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	alcohol	3	1	6.043791167	6.535311918	3.773164095	3.22574583	1.958579245	1.130786254	H
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	alkane	2	29	39.46937415	5.281745782	3.734758259	28.74499048	8.090022493	5.720509765	HxN
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	alkane	3	21	10.64867363	5.816429872	3.358117352	17.51634099	3.735465601	2.156672071	N
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	aldehyde	3	3	12.79833762	5.680327949	3.279538871	12.69934352	10.30802289	5.951339792	N
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	other	3	26	6.327949542	5.358563663	3.093768173	15.69685311	14.73906413	8.509602642	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	ketone	3	5	8.519646453	5.274632421	3.045310448	5.577475297	0.644444605	0.372070266	H
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	alkane	2	22	16.71871964	4.24974492	3.005023451	19.19754655	4.295185006	3.037154444	H
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	Bz	3	4	6.330974225	5.041391553	2.91064877	21.41758723	10.14964693	5.859901389	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	ester	2	8	5.612863105	3.995291829	2.825097945	3.592771042	1.278468042	0.904013422	HxN
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	other	3	26	4.991903864	4.619116476	2.666848141	9.998740115	8.090023394	4.670777184	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	alkane	3	29	11.93662742	4.507894616	2.60263417	25.58575588	1.181352621	0.682054254	C
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	Bz	2	3	2.718024473	3.65821935	2.586751709	2.279619196	2.922868453	2.066780103	H
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	MT	3	8	5.486319098	4.479813057	2.586421275	6.514624676	5.040908621	2.910369949	C
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	isoprene	3	0	7.929792537	4.410738435	2.546541023	6.352931297	2.863075543	1.652997436	N
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	MT	3	4	2.58937524	4.361850657	2.518315651	2.854334633	4.025755656	2.324271111	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	other	2	10	10.09099825	3.525490914	2.492898532	7.017251243	0.439822967	0.311001803	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	alcohol	2	1	9.750856065	3.428724353	2.424474241	6.777350068	0.408474583	0.288835148	HxN
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	Bz	3	6	5.559695493	4.152112939	2.397223523	3.08113467	1.550758444	0.895330805	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	other	2	11	4.306334184	3.343872486	2.36447491	2.74078874	2.078940398	1.470032853	N
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	furan	3	4	7.047007187	4.078870027	2.354936708	5.409100763	2.29593438	1.325558333	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	Bz	3	4	3.614216666	4.065918954	2.347459402	17.20467536	13.35677827	7.711539527	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	other	3	10	8.139403409	3.969687193	2.29189997	5.534209164	0.479206203	0.276669831	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	aldehyde	3	4	3.78843256	3.958347561	2.28535303	15.42006157	19.66853036	11.3556313	N
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	ester	3	8	8.856332877	3.92899077	2.268403879	5.197154573	1.782952276	1.029387976	N
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	other	3	10	11.99497861	3.89856464	2.250837344	7.005524517	1.359829827	0.785098117	N
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	alcohol	2	0	4.59989952	3.170986995	2.242226407	2.930913617	1.962996977	1.388048474	N
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	ketone	3	5	4.399837084	3.783842431	2.184602446	4.002666685	3.45932199	1.997240482	N
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	isoprene	3	0	2.163756964	3.747736998	2.163756964	2.925982565	5.067950465	2.925982565	C
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	MT	3	8	3.640589306	3.697882771	2.134973613	3.018627604	3.423308412	1.976448033	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	ketone	3	5	5.405802888	3.551296967	2.05034226	3.03525069	1.126759862	0.650535109	HxN
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	ketone	2	4	4.308896231	2.816200575	1.991354524	4.459787311	0.993118913	0.702241118	H
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	ST	3	6	1.990200564	3.447128495	1.990200564	3.595647908	6.227844864	3.595647908	H
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	alkane	3	29	49.58366637	3.367403486	1.944171309	29.87169677	5.591912709	3.228492308	N
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	alcohol	3	1	2.699364661	3.340343924	1.928548464	2.9734074	2.970923527	1.715263498	C
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	aldehyde	3	4	2.782859581	3.307043717	1.90932258	11.98485007	12.0870332	6.978451874	C
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	aldehyde	3	3	7.214034585	3.262639065	1.883685542	4.084726089	1.170717025	0.675913789	N
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	ST	3	1	2.612804826	3.170452018	1.830461326	13.25431452	15.39909636	8.890672429	H
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	Bz	3	6	5.49096685	3.148127212	1.817572093	9.251995703	5.822232575	3.361467545	C
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	alkene	3	4	3.143989171	3.119536541	1.801065262	2.284089211	2.887488607	1.667092325	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	MT	3	8	5.848644385	3.035023997	1.752271921	4.550018078	3.385093901	1.954384875	H
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	Bz	3	6	3.547525522	2.934672176	1.694333771	2.716619472	2.529013512	1.460126632	N
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	ester	3	3	3.006274593	2.93452542	1.694249041	1.798261503	0.801252217	0.462603183	C
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	alcohol	3	1	1.692470882	2.931445557	1.692470882	1.394814955	2.41589037	1.394814955	N
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	Bz	2	6	6.876597195	2.386626553	1.68759982	4.784384274	0.311587659	0.220325747	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	ST	2	2	2.232907783	2.36663014	1.67346022	1.310686282	1.090510701	0.771107512	HxN
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	ST	3	1	2.092818557	2.855807109	1.648801003	11.64457682	15.84678364	9.149144803	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	other	3	9	1.871620213	2.827569516	1.632498021	1.088437725	1.40896519	0.813466432	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	ester	3	8	5.987889706	2.759939419	1.593451766	4.041417698	2.489293657	1.437194363	HxN
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	Bz	3	6	4.037421958	2.716135904	1.568161795	2.376522463	1.35417875	0.781835466	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	alkene	3	4	2.071474857	2.690353929	1.553276565	1.201536305	1.074062708	0.620110394	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	ester	2	3	3.217701682	2.091265154	1.478747771	2.051259419	1.291580223	0.913285134	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	MT	3	8	6.587883584	2.55721622	1.476409473	3.935296241	1.105352714	0.638175687	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	alkene	3	5	3.198170892	2.523318525	1.456838629	2.345442572	1.867747067	1.078344272	N
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	alcohol	3	1	13.40715199	2.465624999	1.423529257	7.916900895	0.532882924	0.3076601	N
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	other	3	10	3.224191456	2.44800365	1.413355566	4.643556819	2.504337664	1.445880024	C
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	alcohol	3	1	1.374854151	2.381317243	1.374854151	2.483916215	4.302269086	2.483916215	H
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	ketone	3	1	1.639810291	2.374808353	1.371096242	1.823889521	1.672079447	0.965375519	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	other	3	15	2.045914137	2.365327112	1.365622245	1.05323474	0.35962917	0.207631998	HxN
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	ester	3	3	1.9709274	2.360876897	1.363052912	1.797308334	2.527429909	1.459212339	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	furan	2	4	3.066718134	1.919141871	1.357038231	1.987058193	1.283901154	0.907855213	N
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	alkane	2	22	22.43603251	1.894652534	1.339721655	14.40672689	0.850319292	0.601266538	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	aldehyde	3	3	10.8123857	2.299098273	1.327385007	6.642549727	1.403158211	0.810113771	HxN
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	isoprene	3	0	1.540321036	2.293960314	1.324418605	9.812974715	12.30190871	7.102510304	H
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	other	3	9	1.4180793	2.289983614	1.322122656	0.609423493	0.882236047	0.509359219	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	alcohol	3	1	4.569901676	2.280906273	1.31688185	10.07642703	5.403804345	3.119887893	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	alkene	3	5	1.855739688	2.276849411	1.314539621	2.827240318	2.938200407	1.696370796	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	furan	2	5	3.060935352	1.83175857	1.295248906	2.012244663	0.437369034	0.30926661	HxN
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	alkane	3	21	5.095404409	2.240722221	1.293681577	34.01415417	4.216671849	2.434496627	H
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	MT	3	8	4.526753889	2.2353621	1.29058691	3.527136131	1.446043199	0.83487343	H
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	furan	3	3	1.689758492	2.226086103	1.285231411	1.917675103	1.402439332	0.809698726	N
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	ketone	3	5	3.864466099	2.218403419	1.280795811	2.299967173	1.146867543	0.662144285	N
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	Bz	2	3	1.27463042	1.800549206	1.273180554	0.834103436	1.178306102	0.833188235	N
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	ketone	3	4	3.145238234	2.181813942	1.259670867	2.132843601	0.423619396	0.244576772	C
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	other	3	10	5.022090986	2.175187735	1.255845224	10.66804282	1.744509049	1.007192769	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	furan	3	5	3.334120577	2.14854419	1.240462566	6.702023451	7.464525126	4.309645591	C
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	alkene	3	1	1.461900718	2.113326974	1.220129897	1.987999513	2.125141556	1.226951049	H
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	ST	3	2	2.507052414	2.074603038	1.197772622	1.42008689	0.984866854	0.568613143	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	aldehyde	3	4	1.235899825	2.06244159	1.190751207	6.846799839	11.68619012	6.74702501	C
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	furan	3	5	2.676140336	2.060598513	1.189687106	5.394024302	3.33687787	1.926547336	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	Bz	3	6	4.890114542	2.032062659	1.173211923	4.053285754	2.372574398	1.369806467	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	Bz	3	9	2.783048378	2.031496908	1.172885287	6.3678544	5.242747731	3.026901814	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	furan	3	3	2.233033256	1.992332355	1.150273621	10.83425101	9.84226586	5.682434844	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	aldehyde	3	3	2.076980486	1.989556137	1.148670771	2.619647108	1.484358969	0.85699505	C
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	Bz	3	3	2.091612312	1.97487561	1.140194965	3.184797722	4.358445342	2.516349591	HxN
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	alcohol	3	1	1.130787845	1.958582	1.130787845	2.865363798	4.96295568	2.865363798	HxN
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	ST	3	2	2.824990979	1.940036341	1.120080504	1.573805025	0.592422572	0.342035331	HxN
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	isoprene	2	0	1.104872907	1.562526249	1.104872907	1.791385662	2.533401898	1.791385662	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	furan	3	3	1.584097398	1.896736152	1.095081128	6.490655417	6.730063957	3.885604237	C
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	Bz	3	9	3.558434889	1.885951772	1.088854763	9.158489736	10.67473301	6.163059979	N
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	isoprene	3	0	1.608791294	1.876811435	1.083577587	2.359479622	2.120114784	1.224048841	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	isoprene	3	0	1.576933822	1.872128679	1.080873997	2.420619687	3.874763219	2.237095588	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	MT	2	8	11.32364695	1.521414623	1.075802597	8.245922594	2.316438468	1.637969349	HxN
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	ST	3	6	1.071983835	1.856730466	1.071983835	1.050441926	1.819418786	1.050441926	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	isoprene	2	0	1.037362944	1.467052744	1.037362944	0.678852008	0.960041717	0.678852008	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	alkene	3	1	1.217302179	1.778340851	1.026725569	3.045770492	3.598805753	2.077771471	C
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	furan	3	5	3.929095563	1.71585906	0.99065169	3.21209502	1.646697003	0.950720958	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	ketone	3	1	1.924526766	1.711909909	0.988371647	4.274808826	3.288531401	1.89863449	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	other	3	10	8.578346771	1.653216871	0.954485206	6.717053218	1.08011748	0.623606118	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	Bz	3	9	3.114411497	1.64847763	0.951749004	5.807917354	2.476912751	1.430046243	HxN
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	ester	3	8	5.81907577	1.632795475	0.942694907	4.494118257	0.723409927	0.417660916	H
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	furan	3	5	3.414694405	1.624355625	0.937822157	2.578562053	1.429115303	0.825100105	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	ester	3	8	3.930717155	1.615570609	0.932750126	8.368664159	0.61408911	0.354544513	C
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	other	3	11	1.605507359	1.612245305	0.930830261	1.573402135	1.448020905	0.836015259	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	ester	3	8	1.138037477	1.587451713	0.916515674	1.169848304	1.516700908	0.875667678	C
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	other	3	9	1.870114537	1.574689217	0.909147243	3.261582747	3.405449187	1.966137005	HxN
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	aldehyde	3	4	1.208273426	1.568096416	0.905340888	3.112790675	3.96483136	2.289096453	HxN
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	alkane	3	21	3.820594034	1.566095489	0.904185652	17.80701136	7.815535516	4.512301534	C
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	ST	3	1	0.912312666	1.560544891	0.900981013	2.028913132	3.417438127	1.973058823	C
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	isoprene	3	0	3.324807523	1.541449077	0.88995604	3.333733177	2.345941733	1.354430091	C
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	MT	3	1	1.308177492	1.531582691	0.884259679	0.622682491	0.471183141	0.272037713	HxN
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	other	3	1	1.681991987	1.519801896	0.877458034	5.18381974	6.655305565	3.842442459	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	alkene	3	1	1.962503574	1.490884639	0.860762647	3.262921841	2.001302085	1.155452297	HxN
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	other	3	26	1.680903508	1.487890746	0.859034123	6.259223264	7.046566662	4.068337159	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	ketone	3	5	1.7578377	1.47845485	0.853586306	2.197521069	1.878195573	1.08437672	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	furan	3	3	1.203917737	1.467845335	0.847460899	3.258137164	1.5150156	0.874694665	HxN
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	other	3	9	1.190311808	1.449871551	0.83708373	3.279657045	2.707755001	1.563323079	C
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	other	3	11	4.04923613	1.44237715	0.832756836	5.009519453	5.089761927	2.938575419	HxN
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	furan	3	5	2.633236249	1.42320729	0.821689112	1.509116531	0.344336538	0.198802793	HxN
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	other	2	15	0.91633754	1.156207101	0.817561881	0.790398914	0.891306687	0.630249002	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	Bz	3	4	3.300997185	1.402613318	0.809799176	16.20779033	10.30962489	5.952264705	C
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	ST	3	6	1.389552111	1.388642725	0.801733251	2.228636695	1.944606153	1.122718886	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	other	3	10	10.55071263	1.337025481	0.771932021	6.609058555	1.716123819	0.990804549	HxN
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	other	3	9	3.765627857	1.334165832	0.770281002	3.015760559	1.173940839	0.67777506	H
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	alcohol	2	0	1.209239247	1.07488921	0.760061449	1.170897649	0.625963785	0.442623237	H
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	other	3	1	0.749237948	1.295179343	0.747772142	0.764376069	1.243880387	0.718154676	HxN
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	MT	3	10	0.92205564	1.292682769	0.746330745	1.029265107	0.874423966	0.504848912	N
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	other	3	9	1.020908022	1.290243334	0.744922336	1.507368993	1.228179687	0.709089873	H
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	MT	3	10	0.744569952	1.289632986	0.744569952	0.729607545	1.263717338	0.729607545	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	ST	3	2	1.579627119	1.263392935	0.729420251	1.031567647	0.511535808	0.295335337	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	other	3	9	1.902541984	1.22703324	0.708427972	3.859322566	1.165283879	0.672776961	C
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	ST	3	9	1.260708592	1.226358148	0.708038207	0.663150549	0.457150477	0.263935951	HxN
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	halogen	3	1	0.713404242	1.220831189	0.704847216	0.972129679	1.64458751	0.949503042	C
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	ester	3	8	0.853687331	1.206160111	0.696376865	3.363471039	4.396797406	2.538492166	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	ketone	3	1	1.173904668	1.203882575	0.695061929	3.460606457	4.124438525	2.381245692	HxN
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	furan	3	4	0.859369423	1.196598883	0.690856687	0.860272332	1.226772968	0.708277703	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	alcohol	3	1	4.228247586	1.170992936	0.676073087	3.66915393	0.770791061	0.445016427	N
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	other	3	3	0.842951845	1.141565688	0.659083257	1.091514899	1.574668897	0.909135512	C
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	alcohol	3	1	8.581703847	1.102294846	0.636410226	5.38663243	1.461853505	0.844001514	HxN
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	alcohol	3	0	0.941337495	1.076453842	0.621490915	0.535904979	0.31846384	0.183865184	C
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	Bz	3	9	3.619749131	1.054195053	0.608639798	7.131991396	2.150655442	1.241681498	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	Bz	3	7	7.839183705	1.046830434	0.604387833	17.76752219	4.199674512	2.42468321	C
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	ester	3	8	0.744450954	1.046636363	0.604275786	1.037571989	0.991677663	0.572545366	N
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	other	3	26	0.911479412	1.039265841	0.600020413	3.775695696	3.663359068	2.115041344	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	other	2	3	1.860315445	0.847993949	0.599622272	1.263438646	0.06720204	0.047519018	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	furan	3	5	2.656001583	1.033865424	0.596902481	2.269084825	0.552015828	0.318706487	N
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	Bz	3	6	1.670964187	1.018906965	0.588266211	3.414801851	0.912819752	0.527016729	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	ST	2	9	0.75704536	0.796554026	0.563248754	0.445264582	0.365363016	0.258350666	HxN
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	isoprene	3	0	1.140891471	0.958818251	0.553573975	0.698964105	0.536673506	0.309848593	N
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	other	3	2	1.573579604	0.955890728	0.551883769	1.109192181	0.398594663	0.230128736	C
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	alkene	2	4	0.552616719	0.776717434	0.549222165	0.454140553	0.634468235	0.448636791	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	Bz	3	4	2.718135683	0.929770856	0.536803454	6.755942456	3.333250096	1.92445284	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	ester	3	8	0.640842963	0.923064095	0.532931304	3.481222836	5.299772296	3.059824962	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	other	3	3	1.355624484	0.909290629	0.524979189	0.949576106	0.543808034	0.313967715	H
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	Bz	3	4	1.407525922	0.888597009	0.513031722	2.663429925	1.890412481	1.091430155	N
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	ester	2	3	1.331922385	0.719832278	0.508998285	1.421291177	0.123097683	0.087043206	H
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	other	3	15	0.660202647	0.868315587	0.501322238	0.341194261	0.301485089	0.174062497	C
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	ketone	3	5	1.935665852	0.858137183	0.495445734	4.415583562	2.480485954	1.432109233	C
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	alkene	3	5	2.126322525	0.85548623	0.493915205	1.815200852	1.173445569	0.677489115	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	alkene	3	1	0.710030142	0.848352898	0.489796774	4.062417096	5.501425402	3.176249437	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	ketone	2	5	3.267365797	0.684638062	0.484112217	2.341827804	0.484479112	0.342578465	HxN
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	ester	3	8	0.558853605	0.827827263	0.477946293	1.438117603	0.737116643	0.425574492	HxN
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	Bz	3	9	0.776503892	0.796877746	0.460077581	3.791150405	2.532229637	1.461983463	HxN
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	MT	3	4	0.530500111	0.793761767	0.45827857	0.595985268	0.686638735	0.396431059	HxN
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	ester	3	8	0.541749761	0.785962227	0.453775503	1.93681908	3.086881989	1.782212147	H
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	other	3	9	1.386303678	0.76417176	0.441194771	2.586171732	1.547176719	0.893262895	N
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	other	3	3	2.081775804	0.752924748	0.434701306	1.333921735	0.799972927	0.461864585	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	ST	3	2	1.489931238	0.751243259	0.433730498	1.115721609	0.384796525	0.222162377	H
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	MT	2	11	0.986175639	0.608077075	0.429975424	0.628948402	0.374724267	0.26497007	N
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	ST	3	9	0.576714271	0.740490951	0.42752265	0.308616958	0.265492926	0.153282412	H
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	ketone	3	1	0.495419417	0.725947686	0.419126092	2.471894893	3.538241417	2.042804635	H
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	ST	3	1	0.820750499	0.712047634	0.411100893	0.606033867	0.738878694	0.426591813	HxN
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	Bz	3	9	0.534918823	0.711023945	0.410509866	1.468760909	1.445944625	0.834816518	C
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	alkene	3	1	0.747786108	0.695959203	0.401812233	1.166216173	0.605908442	0.349821402	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	ketone	3	5	2.991149783	0.694796026	0.401140672	2.302538733	0.041042885	0.023696121	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	ST	3	6	0.394555706	0.683390529	0.394555706	1.197852045	2.074740602	1.197852045	HxN
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	furan	3	3	0.890983564	0.666534132	0.38482366	3.0450632	2.661152	1.536416823	N
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	other	3	9	0.689938189	0.656935643	0.37928197	1.988409843	1.736837165	1.002763405	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	other	3	2	0.930598504	0.656177248	0.378844111	1.27856635	1.201424172	0.693642569	HxN
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	other	3	0	0.395600085	0.648830475	0.374602449	0.129884868	0.186104095	0.107447249	HxN
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	other	2	15	1.871746183	0.516014579	0.364877408	1.198961785	0.301035712	0.212864393	N
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	isoprene	3	0	0.475772709	0.617849493	0.356715571	0.834542756	0.929633841	0.536724348	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	other	3	9	0.4936481	0.613977926	0.354480321	3.44036333	3.294414705	1.902031217	H
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	MT	3	11	0.954189751	0.604090152	0.348771612	0.732996382	0.270361373	0.156093211	HxN
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	other	3	3	2.671422425	0.580330591	0.335054023	1.629755635	0.234639042	0.135468914	HxN
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	alkene	3	5	1.434233362	0.563674913	0.325437863	0.881077079	0.398043547	0.229810549	N
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	ST	2	1	0.35655627	0.458890986	0.324484928	0.305000554	0.357798414	0.253001685	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	other	3	3	0.796436095	0.549284888	0.317129778	1.831926206	1.559492954	0.900373677	C
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	Bz	3	9	1.039522987	0.539274832	0.311350469	4.501044083	1.796466685	1.037190524	C
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	ST	3	9	0.945584368	0.539094217	0.311246191	0.5446887	0.23910119	0.138045137	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	ketone	3	1	0.591920321	0.527959951	0.30481782	2.731636113	2.651432829	1.530805458	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	other	3	9	0.550333515	0.514548459	0.297074691	2.563263939	1.298147006	0.749485523	HxN
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	other	3	9	2.51328424	0.481864419	0.278204552	1.578081664	0.715361773	0.413014312	N
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	MT	2	11	0.632739626	0.379973017	0.268681497	0.415758374	0.091400307	0.064629777	HxN
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	alkene	3	5	1.404670091	0.465068735	0.268507559	0.837220888	0.054748923	0.031609305	HxN
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	other	3	9	0.437586957	0.464133287	0.267967478	0.479401053	0.44264461	0.255560985	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	alkene	2	5	1.98043935	0.364315726	0.25761012	1.538350305	0.877116168	0.62021479	HxN
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	alkene	3	1	0.688482264	0.419458374	0.242174405	5.242861854	3.154128836	1.821037133	H
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	halogen	3	1	0.606448387	0.414884237	0.239533526	0.523228522	0.37367208	0.215739676	N
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	ST	2	1	0.566578481	0.331512351	0.234414631	0.361490131	0.203818671	0.144121564	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	Bz	3	6	3.153323775	0.398785882	0.230239136	2.567320586	0.925893219	0.5345647	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	alkene	3	5	0.799825556	0.394737593	0.227901856	1.676700274	0.319057827	0.184208122	C
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	MT	2	1	1.09498389	0.313573214	0.221729746	0.706442329	0.219510311	0.15521723	N
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	ST	3	8	0.582026638	0.380851719	0.219884843	0.428486339	0.278806025	0.160968733	HxN
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	ST	3	2	0.499982193	0.376112923	0.217148897	1.172732748	1.091731743	0.630311615	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	ST	3	2	0.365900027	0.365319163	0.210917117	0.431447001	0.290066448	0.167469942	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	furan	3	3	0.352496061	0.36459023	0.210496267	1.991733782	1.998929744	1.154082626	H
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	ester	3	8	0.347880559	0.350367625	0.202284843	2.189887911	1.486980223	0.858508432	H
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	Bz	3	9	0.33632926	0.334253671	0.192981447	1.736310718	1.648699409	0.951877047	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	MT	3	10	0.192301984	0.318666775	0.183982348	0.478486501	0.814866141	0.470463186	HxN
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	ST	3	8	0.268297118	0.301878587	0.174289683	0.173088923	0.129777733	0.074927209	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	MT	3	11	0.252852059	0.299546497	0.172943251	0.139423254	0.101042745	0.058337056	H
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	other	3	1	0.172754778	0.299220052	0.172754778	0.816644897	1.414470453	0.816644897	C
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	halogen	3	1	0.179986871	0.292606993	0.168936726	0.156018842	0.262258217	0.151414852	C
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	other	3	3	1.862036429	0.289744223	0.167283905	1.469148501	0.280169164	0.161755742	H
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	MT	3	4	0.253093382	0.28342535	0.163635702	0.31561413	0.140926746	0.081364095	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	MT	3	11	0.400802865	0.280207593	0.161777929	0.222810785	0.087542943	0.050542942	HxN
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	halogen	3	1	0.161141194	0.279104735	0.161141194	0.408324289	0.707238415	0.408324289	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	halogen	2	1	0.260623072	0.227877407	0.16113366	0.22989912	0.250144557	0.176878912	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	other	3	3	1.536294051	0.278542898	0.160816817	1.38384122	0.457401414	0.26408083	N
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	MT	3	8	1.276040669	0.276542492	0.159661882	2.846009863	0.592675446	0.342181328	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	other	3	1	0.169486801	0.272630992	0.157403576	0.885468915	1.296979245	0.748811316	H
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	other	2	0	0.246816054	0.2151001	0.152098739	0.156895278	0.134225996	0.094912112	N
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	ST	3	1	0.246662333	0.262481886	0.151543987	0.384766755	0.497098879	0.287000172	N
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	ketone	3	1	0.402866442	0.262053654	0.151296748	1.802339586	0.938758297	0.541992356	C
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	furan	2	4	2.529796814	0.204808474	0.144821461	3.145295391	1.684606792	1.191196887	H
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	MT	3	8	3.785639102	0.241345913	0.139341128	2.306170424	0.609840208	0.352091408	N
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	other	2	2	1.385353862	0.196258213	0.138775513	1.746257433	1.025148836	0.724889693	H
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	ester	3	8	0.389547933	0.228468042	0.131906085	1.023494428	1.241268284	0.716646578	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	ST	3	9	0.584152703	0.225020629	0.129915721	0.43906024	0.085166107	0.049170675	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	aldehyde	3	3	0.558592448	0.223066101	0.128787273	1.27983271	0.682973049	0.394314674	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	Bz	3	4	2.612219472	0.219420262	0.126682348	21.06724067	13.54210337	7.818537027	H
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	ST	2	8	0.584320404	0.169432889	0.119807145	0.374222692	0.099340661	0.070244455	N
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	other	3	1	0.300086503	0.203093528	0.117256103	0.468291828	0.290600235	0.167778124	N
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	furan	3	3	0.374917021	0.201772729	0.11649354	0.684395542	0.309401599	0.178633097	HxN
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	halogen	3	1	0.574784897	0.198002085	0.114316557	0.519212639	0.392891317	0.226835908	H
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	other	2	11	2.4840686	0.155558486	0.10999646	3.075526212	1.598572017	1.130361114	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	ketone	3	1	0.227178956	0.186789227	0.107842811	0.511389756	0.526584562	0.304023739	HxN
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	isoprene	2	0	0.626393796	0.149860116	0.105967104	0.49184925	0.303351408	0.214501837	HxN
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	ST	2	8	0.229494499	0.149591693	0.1057773	0.23764473	0.05240489	0.037055853	H
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	alcohol	3	1	0.104404981	0.180834732	0.104404981	0.102306925	0.177200791	0.102306925	HxN
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	furan	3	3	0.534417753	0.179529157	0.103651207	1.096975905	0.547720731	0.316226711	H
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	halogen	3	1	0.116334236	0.177980081	0.102756848	0.20371016	0.345631914	0.199550679	HxN
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	halogen	3	1	0.102134924	0.176902877	0.102134924	0.184524732	0.319606211	0.184524732	H
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	ST	3	2	1.098668476	0.176298415	0.101785938	1.075043695	0.651362158	0.376064117	N
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	alkene	3	1	0.299995519	0.170183638	0.098255569	2.248982625	1.833136879	1.05836207	HxN
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	other	3	0	0.104451236	0.169859388	0.098068363	0.047096802	0.067283639	0.038846227	C
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	MT	2	11	0.256880446	0.132600077	0.093762413	0.27588304	0.01613847	0.011411622	H
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	MT	3	11	0.327182524	0.160283589	0.092539773	0.247277419	0.084310606	0.048676751	H
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	isoprene	3	0	0.43823867	0.159067847	0.091837864	0.365435041	0.199482223	0.115171115	H
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	halogen	3	1	0.095144549	0.156750532	0.090499962	0.25816458	0.42595789	0.245926903	C
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	MT	3	4	0.172648545	0.146132741	0.084369777	0.689206183	0.527372121	0.304478436	C
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	alkene	3	1	0.511330642	0.146082357	0.084340688	1.370597392	0.73673773	0.425355727	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	halogen	3	1	0.309035057	0.141104552	0.081466751	0.183581052	0.068342198	0.039457386	HxN
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	other	3	1	0.079029577	0.136883243	0.079029577	0.088369682	0.153060779	0.088369682	N
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	alcohol	3	1	0.139281466	0.136505763	0.078811639	0.301949902	0.250513769	0.144634192	N
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	isoprene	3	0	0.077309744	0.133904404	0.077309744	0.06371323	0.110354552	0.06371323	N
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	ST	3	9	0.089521603	0.130996661	0.075630958	0.091051837	0.125613317	0.072522883	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	MT	3	4	0.113196716	0.130261099	0.075206281	1.287067231	1.876621109	1.083467702	H
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	other	3	9	0.424945499	0.128708285	0.074309763	0.273364007	0.129134147	0.074555635	HxN
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	ST	3	9	0.156273249	0.128187173	0.074008899	0.350660019	0.341867146	0.197377089	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	alkene	3	5	2.357084052	0.127089536	0.073375178	1.877379312	0.899652013	0.519414332	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	other	3	9	0.386807037	0.124495282	0.071877385	1.868363466	0.980410304	0.566040153	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	MT	3	11	0.101660457	0.123777882	0.071463194	0.107583587	0.117986153	0.068119337	C
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	isoprene	3	0	0.097572744	0.119364843	0.068915324	0.329815104	0.477469511	0.275667151	H
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	MT	3	11	0.242436387	0.118749284	0.068559931	0.184074553	0.07642173	0.044122106	C
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	ST	3	1	0.115680833	0.116988645	0.067543426	0.072876116	0.033650889	0.01942835	C
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	other	2	9	2.180655281	0.087012919	0.061527425	1.619388986	0.600302543	0.424477999	HxN
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	acid	2	0	0.058796223	0.083150416	0.058796223	0.04817392	0.068128211	0.04817392	H
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	halogen	2	1	0.125791363	0.073959808	0.052297482	0.132537039	0.018918978	0.013377737	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	alcohol	3	1	0.076207642	0.087127009	0.050302802	0.332335569	0.32189324	0.185845149	C
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	ST	3	6	0.075699369	0.083096224	0.047975627	0.305232457	0.415286131	0.23976556	C
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	acid	2	0	0.047064921	0.06655985	0.047064921	0.030799361	0.043556875	0.030799361	N
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	halogen	3	1	0.046315517	0.080220829	0.046315517	0.192361788	0.33318039	0.192361788	C
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	isoprene	3	0	0.045878552	0.079463983	0.045878552	0.216876695	0.375641455	0.216876695	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	other	3	26	0.329569972	0.07914897	0.045696679	2.385187224	0.763558318	0.4408406	H
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	MT	3	11	0.394969362	0.078183221	0.045139104	0.234197293	0.031702589	0.018303498	N
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	ester	3	8	0.127159808	0.077836604	0.044938984	0.332680339	0.266198405	0.153689721	HxN
+SWAN	2018	June	control	3	99	141.5224932	89.11514528	51.45065312	acid	3	0	0.082843693	0.071745904	0.041422517	0.053806438	0.05492439	0.031710611	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	aldehyde	3	4	0.037918646	0.065677022	0.037918646	0.214383507	0.371323126	0.214383507	H
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	ST	3	9	0.197621235	0.064401845	0.037182422	0.206641909	0.158446727	0.091479261	N
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	other	3	1	0.060661704	0.064002944	0.036952117	0.244700716	0.267172928	0.154252362	C
+SWAN	2018	June	heated	2	99	91.86345134	42.69009109	30.1864529	other	2	0	0.044527791	0.050964407	0.036037278	0.039888016	0.036941979	0.026121924	H
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	alkene	2	4	0.316215179	0.050330809	0.035589257	0.203680592	0.037534368	0.026540806	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	MT	3	4	0.093219522	0.061292348	0.035387154	0.456253764	0.409761589	0.236575964	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	halogen	3	1	0.035353606	0.061234241	0.035353606	0.034643162	0.060003717	0.034643162	HxN
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	isoprene	3	0	0.034532029	0.059811228	0.034532029	0.10483757	0.181583998	0.10483757	HxN
+SWAN	2018	June	heated_nitrogen	3	99	161.5510523	150.0169752	86.61234099	acid	3	0	0.037875933	0.059673317	0.034452406	0.036767125	0.061879006	0.035725861	HxN
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	MT	3	10	0.060553161	0.057008436	0.032913836	0.306710424	0.276004903	0.159351505	C
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	MT	3	11	0.09467635	0.051472318	0.029717557	0.199286475	0.071228334	0.041123698	C
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	other	3	1	0.559121325	0.051414105	0.029683948	1.220498411	0.608232119	0.351162978	HxN
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	ST	3	6	0.03612222	0.045458236	0.026245325	0.152677083	0.164702633	0.09509111	C
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	other	2	2	1.385337136	0.03706241	0.026207081	0.890213711	0.001126814	0.000796778	N
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	MT	3	4	0.098823915	0.04382987	0.025305187	0.211287189	0.11306849	0.065280123	H
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	ketone	3	1	0.048817203	0.040785753	0.023547666	0.1328214	0.170666831	0.098534541	H
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	aldehyde	3	4	0.01945444	0.033696079	0.01945444	0.021674086	0.037540618	0.021674086	H
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	MT	3	11	0.078736922	0.03151052	0.018192607	0.06816434	0.026059147	0.015045255	N
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	MT	3	10	0.016877763	0.029233143	0.016877763	0.063359214	0.109741377	0.063359214	C
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	halogen	3	1	0.051218172	0.028492625	0.016450225	0.033504857	0.02519603	0.014546935	N
+SWAN	2018	June	nitrogen	2	99	155.61598	3.966340437	2.80462622	halogen	2	1	0.015605752	0.022069866	0.015605752	0.010212429	0.014442556	0.010212429	N
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	halogen	3	1	0.07652462	0.024036879	0.013877698	0.063733719	0.033321852	0.01923838	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	MT	3	10	0.012274904	0.021260758	0.012274904	0.058014937	0.100484819	0.058014937	N
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	acid	3	0	0.005525025	0.009569623	0.005525025	0.005302884	0.009184865	0.005302884	HxN
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	acid	3	0	0.00398078	0.006894913	0.00398078	0.008762901	0.01517779	0.008762901	C
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	acid	3	0	0.002018179	0.003495589	0.002018179	0.001663241	0.002880818	0.001663241	N
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	acid	3	0	0.002535951	0.00220071	0.001270581	0.009154611	0.008699309	0.005022548	N
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	MT	3	4	0.185429764	0.001363862	0.000787426	0.518937625	0.333817477	0.19272961	N
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	acid	3	0	0.000684099	0.001184895	0.000684099	0.000762151	0.001320085	0.000762151	H
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	MT	3	10	0.000507427	0.00087889	0.000507427	0.00286888	0.004969046	0.00286888	H
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	acid	3	0	0.000250751	0.000434313	0.000250751	0.003287678	0.005694426	0.003287678	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	acid	3	0	0.000161611	0.000279918	0.000161611	0.000997145	0.001727106	0.000997145	C
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	acid	3	0	0	0	0	0	0	0	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	acid	3	0	0	0	0	0	0	0	H
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	acid	3	0	0	0	0	0	0	0	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	acid	3	0	0	0	0	0	0	0	N
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	acid	3	0	0	0	0	0	0	0	C
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	acid	3	0	0	0	0	0	0	0	H
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	acid	2	0	0	0	0	0	0	0	HxN
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	acid	3	0	0	0	0	0	0	0	N
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	isoprene	3	0	0	0	0	0	0	0	HxN
+SWAN	2018	August	control	3	124	71.34921184	32.38325684	18.69648206	other	3	2	0	0	0	0	0	0	C
+SWAN	2018	August	heated	3	124	152.0344897	87.27932033	50.39073909	other	3	2	0	0	0	0	0	0	H
+SWAN	2018	August	heated_nitrogen	3	124	167.0555878	50.59405082	29.21048886	other	3	2	0	0	0	0	0	0	HxN
+SWAN	2018	August	nitrogen	3	124	123.5029564	60.41892846	34.88288461	other	3	2	0	0	0	0	0	0	N
+SWAN	2018	October	control	3	124	46.23657712	15.3325408	8.852246559	other	3	2	0	0	0	0	0	0	C
+SWAN	2018	October	heated	3	124	130.2051256	31.71674265	18.3116699	other	3	2	0	0	0	0	0	0	H
+SWAN	2018	October	heated_nitrogen	2	124	145.6633038	59.37013561	41.98102549	other	2	2	0	0	0	0	0	0	HxN
+SWAN	2018	October	nitrogen	3	124	170.6999323	38.0148385	21.94787724	other	3	2	0	0	0	0	0	0	N
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	alcohol	3	1	0	0	0	0	0	0	C
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	halogen	3	1	0	0	0	0	0	0	C
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	halogen	3	1	0	0	0	0	0	0	N
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	MT	3	10	0	0	0	0	0	0	H
+SWAN	2019	October	control	3	112	28.12112613	15.08245881	8.707861657	other	3	2	0	0	0	0	0	0	C
+SWAN	2019	October	heated	3	112	57.13361755	31.77125402	18.34314206	other	3	2	0	0	0	0	0	0	H
+SWAN	2019	October	heated_nitrogen	3	112	58.86389175	39.38810492	22.74073298	other	3	2	0	0	0	0	0	0	HxN
+SWAN	2019	October	nitrogen	3	112	66.91582896	49.66122218	28.67191999	other	3	2	0	0	0	0	0	0	N
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	acid	3	0	0	0	0	0	0	0	HxN
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	alcohol	3	1	0	0	0	0	0	0	H
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	halogen	3	1	0	0	0	0	0	0	H
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	halogen	3	1	0	0	0	0	0	0	N
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	isoprene	3	0	0	0	0	0	0	0	C
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	isoprene	3	0	0	0	0	0	0	0	HxN
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	ST	3	6	0	0	0	0	0	0	H
+SWAN	2019	August	control	3	112	22.30761636	5.435955329	3.138450273	other	3	2	0	0	0	0	0	0	C
+SWAN	2019	August	heated	3	112	15.22593572	6.715545374	3.87722193	other	3	2	0	0	0	0	0	0	H
+SWAN	2019	August	heated_nitrogen	3	112	39.69884141	54.26618005	31.33059366	other	3	2	0	0	0	0	0	0	HxN
+SWAN	2019	August	nitrogen	3	112	49.81657096	35.43025068	20.45566477	other	3	2	0	0	0	0	0	0	N
+         ")
+
+Data = read.table(textConnection(Input),header=TRUE)
+
+
+library(RColorBrewer)
+
+cbbPalette <- c("#D1BBD7", "#AE76A3", "#882E72", "#1965B0", "#5289C7", "#7BAFDE", "#4EB265", "#90C987", "#CAE0AB", "#F7F056", "#F6C141", "#E8601C", "#DC050C", "#777777")
+
+
+# Order factors for plotting
+Data$Year <- factor(Data$Year, levels=c("2018","2019"))
+
+Data$Month <- factor(Data$Month, levels=c("June","August","October"))
+
+Data$Treatment2 <- factor(Data$Treatment2, levels=c("C","H","N","HxN"))
+
+labs <- labs(x="Treatment", y=bquote(Total~VOC~emissions~(mu*g~m^-2~h^-1)))
+
+ALL_plot <- ggplot(Data) + 
+  geom_col(aes(x=Treatment2, y=Class_ER_ave, fill=factor(Class))) + 
+  scale_fill_manual(values=cbbPalette) + 
+  geom_errorbar(aes(x=Treatment2, ymin=Total_ER_ave-Total_ER_se, ymax=Total_ER_ave+Total_ER_se), col="black", lwd=0.25) +
+  theme(axis.title.x = element_text(face='bold',size=16,hjust=0.5),
+        axis.title.y = element_text(face='bold',size=16,vjust=1),
+        axis.text.x = element_text(face='bold',size=14,color='black'),
+        axis.text.y = element_text(face='bold',size=14,color='black')) +
+  labs + facet_grid(Year~Month, scales="free", space="free_x")
+
+ALL_plot
+
+
+ALL_plot_final <- ALL_plot + 
+  theme(panel.grid = element_blank(), 
+        panel.background = element_rect(fill = "white"), 
+        panel.border = element_rect(color = "black", fill = NA, size = 0.5), 
+        axis.title.x = element_text(color="black", vjust=1),
+        axis.title.y = element_text(color="black" , vjust=1)) +
+  labs
+
+ALL_plot_final
+
+jpeg("stacked_by_month_by_year.jpeg",height=6,width=8,units = 'in', res = 600)#height in inches, resolution 600 dpi
+plot(ALL_plot_final)
+dev.off()
+
+######percentage plot 
+labs <- labs(x="Treatment", y="Percentage composition(%)")
+
+ALL_plot <- ggplot(Data) + 
+  geom_col(aes(x=Treatment2, y=Percent_ave, fill=factor(Class))) + 
+  scale_fill_manual(values=cbbPalette) + 
+  theme(axis.title.x = element_text(face='bold',size=16,hjust=0.5),
+        axis.title.y = element_text(face='bold',size=16,vjust=1),
+        axis.text.x = element_text(face='bold',size=14,color='black'),
+        axis.text.y = element_text(face='bold',size=14,color='black')) +
+  labs + facet_grid(Year~Month, scales="free", space="free_x")
+
+ALL_plot
+
+
+ALL_plot_final <- ALL_plot + 
+  theme(panel.grid = element_blank(), 
+        panel.background = element_rect(fill = "white"), 
+        panel.border = element_rect(color = "black", fill = NA, size = 0.5), 
+        axis.title.x = element_text(color="black", vjust=1),
+        axis.title.y = element_text(color="black" , vjust=1)) +
+  labs
+
+ALL_plot_final
+
+jpeg("stacked_by_month_by_year_percent.jpeg",height=6,width=8,units = 'in', res = 600)#height in inches, resolution 600 dpi
+plot(ALL_plot_final)
+dev.off()
+
+
+
+
